@@ -117,7 +117,7 @@ export default function ProductsPage() {
               <TableRow key={product._id}>
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>{product.description}</TableCell>
-                <TableCell>${product.price.toFixed(2)}</TableCell>
+                <TableCell>${product.price}</TableCell>
                 <TableCell>{product.stock}</TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell>
@@ -139,6 +139,15 @@ export default function ProductsPage() {
                       >
                         Edit
                       </DropdownMenuItem>
+                      {/* View Product */}
+                      <DropdownMenuItem
+                        onClick={() =>
+                          router.push(`/dashboard/products/${product._id}`)
+                        }
+                      >
+                        View Product
+                      </DropdownMenuItem>
+
                       <DropdownMenuItem
                         onClick={() => handleDelete(product._id)}
                         className="text-red-600"

@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Star,
   Settings,
+  Image,
 } from "lucide-react";
 
 const routes = [
@@ -19,6 +20,12 @@ const routes = [
     icon: LayoutDashboard,
     href: "/dashboard",
     color: "text-sky-500",
+  },
+  {
+    label: "Banner",
+    icon: Image,
+    href: "/dashboard/banner",
+    color: "text-violet-500",
   },
   {
     label: "Products",
