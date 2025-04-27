@@ -35,7 +35,7 @@ export default function OrderDetailsPage() {
   const fetchOrder = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/orders/${id}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}`
       );
       const data = await response.json();
       setOrder(data);

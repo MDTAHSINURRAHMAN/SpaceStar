@@ -68,7 +68,7 @@ export default function BannerPage() {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      const response = await fetch("http://localhost:5000/api/banner", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banner`, {
         method: "PUT",
         body: formData,
       });

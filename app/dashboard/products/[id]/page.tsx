@@ -34,7 +34,7 @@ export default function ProductDetailsPage() {
     async function fetchProduct() {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/products/${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`
         );
         
         if (!response.ok) {

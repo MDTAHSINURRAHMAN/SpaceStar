@@ -24,7 +24,7 @@ export default function UpdateOrderStatusPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`http://localhost:5000/api/orders/${id}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}`)
       .then((r) => r.json())
       .then((data: Order) => {
         setOrder(data);
@@ -39,7 +39,7 @@ export default function UpdateOrderStatusPage() {
     setUpdating(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/orders/${id}/status`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
