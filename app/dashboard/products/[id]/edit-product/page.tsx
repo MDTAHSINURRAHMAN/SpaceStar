@@ -30,7 +30,7 @@ const productSchema = z.object({
     .array(z.any())
     .min(1, "At least one image is required")
     .max(5, "Maximum 5 images allowed"),
-  isPreOrder: z.boolean().default(false),
+  isPreOrder: z.boolean(),
   sizes: z.array(z.string()).min(1, "At least one size is required"),
   colors: z.array(z.string()).min(1, "At least one color is required"),
 });
