@@ -56,6 +56,13 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     async function loadProducts() {
       try {
         const data = await fetchProducts();

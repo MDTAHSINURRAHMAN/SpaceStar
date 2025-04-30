@@ -23,6 +23,13 @@ export default function UpdateOrderStatusPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     if (!id) return;
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}`)
       .then((r) => r.json())

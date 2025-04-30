@@ -29,6 +29,13 @@ export default function OrderDetailsPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     fetchOrder();
   }, [id]);
 

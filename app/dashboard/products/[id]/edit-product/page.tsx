@@ -45,6 +45,13 @@ export default function EditProductPage() {
   const [colors, setColors] = useState<string[]>([""]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, []);
+
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {

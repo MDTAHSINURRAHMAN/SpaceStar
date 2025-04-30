@@ -31,6 +31,13 @@ export default function ProductDetailsPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    }
+  }, []);
+
+  useEffect(() => {
     async function fetchProduct() {
       try {
         const response = await fetch(
