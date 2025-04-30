@@ -36,8 +36,6 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -46,10 +44,11 @@ export default function OrdersPage() {
   }, []);
 
   useEffect(() => {
-    fetchOrders();
+    const token = localStorage.getItem("token");
+    fetchOrders(token);
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (token: string) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
         headers: {

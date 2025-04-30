@@ -154,9 +154,10 @@ export default function EditProductPage() {
     }
   };
 
-  const token = localStorage.getItem("token");
+  
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     async function fetchProduct() {
       try {
         const response = await fetch(
