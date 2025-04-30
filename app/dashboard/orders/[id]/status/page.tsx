@@ -11,11 +11,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BackPage } from "@/app/components/backPage/backpage";
 
-interface Order { _id: string; status: string; }
+interface Order {
+  _id: string;
+  status: string;
+}
 
 export default function UpdateOrderStatusPage() {
-  const { id } = useParams();              // ← get the :id
+  const { id } = useParams(); // ← get the :id
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -68,13 +72,10 @@ export default function UpdateOrderStatusPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between mb-6">
-        <h1 className="text-2xl font-bold">Update Order Status</h1>
-        <Button
-          variant="outline"
-          onClick={() => router.push(`/dashboard/orders/${id}`)}
-        >
-          Back
-        </Button>
+        <div className="flex items-center gap-4">
+          <BackPage />
+          <h1 className="text-2xl font-bold">Update Order Status</h1>
+        </div>
       </div>
       <Card>
         <CardHeader>

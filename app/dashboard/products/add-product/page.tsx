@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { BackPage } from "@/app/components/backPage/backpage";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -130,7 +131,7 @@ export default function AddProductPage() {
   async function onSubmit(values: z.infer<typeof productSchema>) {
     try {
       setIsLoading(true);
-  
+
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("description", values.description);
@@ -138,27 +139,30 @@ export default function AddProductPage() {
       formData.append("category", values.category);
       formData.append("stock", values.stock);
       formData.append("isPreOrder", values.isPreOrder.toString());
-  
+
       values.sizes.forEach((size) => {
         formData.append("sizes", size);
       });
       values.colors.forEach((color) => {
         formData.append("colors", color);
       });
-  
+
       values.images.forEach((image) => {
         formData.append("images", image);
       });
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
-        method: "POST",
-        body: formData,
-      });
-  
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/products`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Failed to create product");
       }
-  
+
       toast.success("Product created successfully");
       router.push("/dashboard/products");
     } catch (error) {
@@ -167,12 +171,14 @@ export default function AddProductPage() {
       setIsLoading(false);
     }
   }
-  
 
   return (
     <div className="container mx-auto py-10">
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold tracking-tight">Add New Product</h2>
+        <div className="flex items-center gap-4">
+          <BackPage />
+          <h2 className="text-3xl font-bold tracking-tight">Add New Product</h2>
+        </div>
       </div>
 
       <Form {...form}>

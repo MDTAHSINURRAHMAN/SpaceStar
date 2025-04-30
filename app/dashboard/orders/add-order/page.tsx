@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { BackPage } from "@/app/components/backPage/backpage";
 
 interface OrderItem {
   name: string;
@@ -77,13 +78,16 @@ export default function AddOrderPage() {
     try {
       const totalAmount = parseFloat(calculateTotal());
       const orderData = { ...formData, totalAmount };
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        }
+      );
 
       if (response.ok) {
         router.push("/dashboard/orders");
@@ -99,13 +103,21 @@ export default function AddOrderPage() {
   };
 
   const calculateTotal = () => {
-    return formData.items.reduce((total, item) => {
-      return total + (item.quantity * item.price);
-    }, 0).toFixed(2);
+    return formData.items
+      .reduce((total, item) => {
+        return total + item.quantity * item.price;
+      }, 0)
+      .toFixed(2);
   };
 
   return (
     <div className="container mx-auto py-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <BackPage />
+          <h1 className="text-2xl font-bold">Add New Order</h1>
+        </div>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Add New Order</CardTitle>
@@ -164,7 +176,7 @@ export default function AddOrderPage() {
                   Total: ${calculateTotal()}
                 </div>
               </div>
-                
+
               {formData.items.map((item, index) => (
                 <div key={index} className="p-4 border rounded-lg space-y-4">
                   <div className="space-y-2">

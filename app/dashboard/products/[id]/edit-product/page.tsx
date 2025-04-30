@@ -19,6 +19,7 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
+import { BackPage } from "@/app/components/backPage/backpage";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -97,14 +98,20 @@ export default function EditProductPage() {
   const removeExistingImage = (index: number) => {
     const newExistingImages = existingImages.filter((_, i) => i !== index);
     setExistingImages(newExistingImages);
-    form.setValue("images", [...newExistingImages, ...images.filter(img => img !== null)]);
+    form.setValue("images", [
+      ...newExistingImages,
+      ...images.filter((img) => img !== null),
+    ]);
   };
 
   const handleSizeChange = (value: string, index: number) => {
     const newSizes = [...sizes];
     newSizes[index] = value;
     setSizes(newSizes);
-    form.setValue("sizes", newSizes.filter(size => size.trim() !== ""));
+    form.setValue(
+      "sizes",
+      newSizes.filter((size) => size.trim() !== "")
+    );
   };
 
   const addSizeField = () => {
@@ -115,7 +122,10 @@ export default function EditProductPage() {
     if (sizes.length > 1) {
       const newSizes = sizes.filter((_, i) => i !== index);
       setSizes(newSizes);
-      form.setValue("sizes", newSizes.filter(size => size.trim() !== ""));
+      form.setValue(
+        "sizes",
+        newSizes.filter((size) => size.trim() !== "")
+      );
     }
   };
 
@@ -123,7 +133,10 @@ export default function EditProductPage() {
     const newColors = [...colors];
     newColors[index] = value;
     setColors(newColors);
-    form.setValue("colors", newColors.filter(color => color.trim() !== ""));
+    form.setValue(
+      "colors",
+      newColors.filter((color) => color.trim() !== "")
+    );
   };
 
   const addColorField = () => {
@@ -134,7 +147,10 @@ export default function EditProductPage() {
     if (colors.length > 1) {
       const newColors = colors.filter((_, i) => i !== index);
       setColors(newColors);
-      form.setValue("colors", newColors.filter(color => color.trim() !== ""));
+      form.setValue(
+        "colors",
+        newColors.filter((color) => color.trim() !== "")
+      );
     }
   };
 
@@ -149,7 +165,7 @@ export default function EditProductPage() {
         }
         const data = await response.json();
         setProduct(data);
-        
+
         // Handle existing images
         if (data.images && Array.isArray(data.images)) {
           setExistingImages(data.images);
@@ -157,21 +173,25 @@ export default function EditProductPage() {
         } else {
           setImages([null]);
         }
-        
+
         // Handle sizes
         if (data.sizes && Array.isArray(data.sizes) && data.sizes.length > 0) {
           setSizes(data.sizes);
         } else {
           setSizes([""]);
         }
-        
+
         // Handle colors
-        if (data.colors && Array.isArray(data.colors) && data.colors.length > 0) {
+        if (
+          data.colors &&
+          Array.isArray(data.colors) &&
+          data.colors.length > 0
+        ) {
           setColors(data.colors);
         } else {
           setColors([""]);
         }
-        
+
         form.reset({
           name: data.name || "",
           description: data.description || "",
@@ -205,14 +225,16 @@ export default function EditProductPage() {
       formData.append("category", values.category);
       formData.append("stock", values.stock);
       formData.append("isPreOrder", values.isPreOrder.toString());
-      
+
       // Filter out empty strings
-      const filteredSizes = values.sizes.filter(size => size.trim() !== "");
-      const filteredColors = values.colors.filter(color => color.trim() !== "");
-      
+      const filteredSizes = values.sizes.filter((size) => size.trim() !== "");
+      const filteredColors = values.colors.filter(
+        (color) => color.trim() !== ""
+      );
+
       formData.append("sizes", JSON.stringify(filteredSizes));
       formData.append("colors", JSON.stringify(filteredColors));
-      
+
       // Append existing images
       formData.append("existingImages", JSON.stringify(existingImages));
 
@@ -223,10 +245,13 @@ export default function EditProductPage() {
         }
       });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`, {
-        method: "PUT",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -245,13 +270,20 @@ export default function EditProductPage() {
   }
 
   if (!product) {
-    return <div className="flex justify-center items-center h-screen">Loading product data...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading product data...
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto py-10">
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold tracking-tight">Edit Product</h2>
+        <div className="flex items-center gap-4">
+          <BackPage />
+          <h2 className="text-3xl font-bold tracking-tight">Edit Product</h2>
+        </div>
       </div>
 
       <Form {...form}>
@@ -361,9 +393,11 @@ export default function EditProductPage() {
               <div className="grid grid-cols-5 gap-2 mb-4">
                 {existingImages.map((img, idx) => (
                   <div key={idx} className="relative">
-                    <img 
-                      src={typeof img === 'string' ? img : URL.createObjectURL(img)} 
-                      alt={`Product image ${idx + 1}`} 
+                    <img
+                      src={
+                        typeof img === "string" ? img : URL.createObjectURL(img)
+                      }
+                      alt={`Product image ${idx + 1}`}
                       className="h-24 w-24 object-cover rounded-md"
                     />
                     <Button
@@ -410,7 +444,7 @@ export default function EditProductPage() {
                 )}
               </div>
             ))}
-            {(images.length + existingImages.length) < 5 && (
+            {images.length + existingImages.length < 5 && (
               <Button
                 type="button"
                 variant="outline"

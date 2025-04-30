@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Edit } from "lucide-react";
+import { BackPage } from "@/app/components/backPage/backpage";
 
 interface Product {
   _id: string;
@@ -43,11 +44,11 @@ export default function ProductDetailsPage() {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`
         );
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch product");
         }
-        
+
         const data = await response.json();
         setProduct(data);
       } catch (error) {
@@ -63,30 +64,33 @@ export default function ProductDetailsPage() {
   console.log(product);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   if (!product) {
-    return <div className="flex justify-center items-center h-screen">Product not found</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Product not found
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Product Details</h1>
-        <div className="space-x-4">
-          <Button
-            variant="outline"
-            onClick={() => router.push("/dashboard/products")}
-          >
-            Back to Products
-          </Button>
-          <Button
-            onClick={() => router.push(`/dashboard/products/${id}/edit-product`)}
-          >
-            <Edit className="mr-2 h-4 w-4" /> Edit Product
-          </Button>
+        <div className="flex items-center gap-4">
+          <BackPage />
+          <h1 className="text-2xl font-bold">Product Details</h1>
         </div>
+        <Button
+          onClick={() => router.push(`/dashboard/products/${id}/edit-product`)}
+        >
+          <Edit className="mr-2 h-4 w-4" /> Edit Product
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -98,7 +102,10 @@ export default function ProductDetailsPage() {
             <div className="grid grid-cols-2 gap-4">
               {product.images && product.images.length > 0 ? (
                 product.images.map((url, index) => (
-                  <div key={index} className="relative aspect-square rounded-md overflow-hidden border">
+                  <div
+                    key={index}
+                    className="relative aspect-square rounded-md overflow-hidden border"
+                  >
                     <Image
                       src={url}
                       alt={`${product.name} - Image ${index + 1}`}
@@ -147,11 +154,15 @@ export default function ProductDetailsPage() {
             </div>
 
             <div>
-              <h4 className="font-medium text-sm text-gray-500">Available Sizes</h4>
+              <h4 className="font-medium text-sm text-gray-500">
+                Available Sizes
+              </h4>
               <div className="flex flex-wrap gap-2 mt-1">
                 {product.sizes && product.sizes.length > 0 ? (
                   product.sizes.map((size, index) => (
-                    <Badge key={index} variant="outline">{size}</Badge>
+                    <Badge key={index} variant="outline">
+                      {size}
+                    </Badge>
                   ))
                 ) : (
                   <p>No sizes specified</p>
@@ -160,11 +171,15 @@ export default function ProductDetailsPage() {
             </div>
 
             <div>
-              <h4 className="font-medium text-sm text-gray-500">Available Colors</h4>
+              <h4 className="font-medium text-sm text-gray-500">
+                Available Colors
+              </h4>
               <div className="flex flex-wrap gap-2 mt-1">
                 {product.colors && product.colors.length > 0 ? (
                   product.colors.map((color, index) => (
-                    <Badge key={index} variant="outline">{color}</Badge>
+                    <Badge key={index} variant="outline">
+                      {color}
+                    </Badge>
                   ))
                 ) : (
                   <p>No colors specified</p>
@@ -174,12 +189,20 @@ export default function ProductDetailsPage() {
 
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div>
-                <h4 className="font-medium text-sm text-gray-500">Created At</h4>
-                <p className="mt-1">{new Date(product.createdAt).toLocaleDateString()}</p>
+                <h4 className="font-medium text-sm text-gray-500">
+                  Created At
+                </h4>
+                <p className="mt-1">
+                  {new Date(product.createdAt).toLocaleDateString()}
+                </p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-gray-500">Last Updated</h4>
-                <p className="mt-1">{new Date(product.updatedAt).toLocaleDateString()}</p>
+                <h4 className="font-medium text-sm text-gray-500">
+                  Last Updated
+                </h4>
+                <p className="mt-1">
+                  {new Date(product.updatedAt).toLocaleDateString()}
+                </p>
               </div>
             </div>
           </CardContent>

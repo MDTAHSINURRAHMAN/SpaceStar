@@ -24,6 +24,8 @@ export default function BannerPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  const router = useRouter();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {

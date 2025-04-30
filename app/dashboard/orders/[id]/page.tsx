@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { BackPage } from "@/app/components/backPage/backpage";
 
 interface Order {
   _id: string;
@@ -23,7 +24,7 @@ interface Order {
 }
 
 export default function OrderDetailsPage() {
-    const { id } = useParams();
+  const { id } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -79,20 +80,13 @@ export default function OrderDetailsPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Order Details</h1>
-        <div className="space-x-4">
-          <Button
-            variant="outline"
-            onClick={() => router.push("/dashboard/orders")}
-          >
-            Back to Orders
-          </Button>
-          <Button
-            onClick={() => router.push(`/dashboard/orders/${id}/status`)}
-          >
-            Update Status
-          </Button>
+        <div className="flex items-center gap-4">
+          <BackPage />
+          <h1 className="text-2xl font-bold">Order Details</h1>
         </div>
+        <Button onClick={() => router.push(`/dashboard/orders/${id}/status`)}>
+          Update Status
+        </Button>
       </div>
 
       <Card>
