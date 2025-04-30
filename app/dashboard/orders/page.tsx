@@ -45,7 +45,9 @@ export default function OrdersPage() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetchOrders(token);
+    if (token) {
+      fetchOrders(token);
+    }
   }, []);
 
   const fetchOrders = async (token: string) => {
