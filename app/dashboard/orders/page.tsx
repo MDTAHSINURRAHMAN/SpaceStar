@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface Order {
   _id: string;
@@ -35,6 +36,8 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -48,11 +51,26 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
-      setOrders(data);
+      
+      // Check if data is an array before setting it
+      if (Array.isArray(data)) {
+        setOrders(data);
+      } else {
+        // If data is not an array, set orders to empty array and show error
+        setOrders([]);
+        toast.error("Invalid data format received from server");
+        console.error("Expected array of orders but got:", data);
+      }
     } catch (error) {
       console.error("Error fetching orders:", error);
+      toast.error("Failed to fetch orders");
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -106,42 +124,49 @@ export default function OrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order._id}>
-                  <TableCell>{order.customerName}</TableCell>
-                  <TableCell>{order.customerEmail}</TableCell>
-                  <TableCell>{order.customerNumber}</TableCell>
-                  <TableCell>{order.customerAddress}</TableCell>
-                  <TableCell>
-
-                    {order.items.map((item) => (
-                      <div key={item.name}>
-                        {item.name} x {item.quantity}
-                      </div>
-                    ))}
-                  </TableCell>
-                  <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(order.status)}>
-                      {order.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        router.push(`/dashboard/orders/${order._id}`)
-                      }
-                    >
-                      View
-                    </Button>
+              {orders && orders.length > 0 ? (
+                orders.map((order) => (
+                  <TableRow key={order._id}>
+                    <TableCell>{order.customerName}</TableCell>
+                    <TableCell>{order.customerEmail}</TableCell>
+                    <TableCell>{order.customerNumber}</TableCell>
+                    <TableCell>{order.customerAddress}</TableCell>
+                    <TableCell>
+                      {order.items.map((item) => (
+                        <div key={item.name}>
+                          {item.name} x {item.quantity}
+                        </div>
+                      ))}
+                    </TableCell>
+                    <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(order.status)}>
+                        {order.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          router.push(`/dashboard/orders/${order._id}`)
+                        }
+                      >
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-4">
+                    No orders found
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>

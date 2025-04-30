@@ -154,11 +154,18 @@ export default function EditProductPage() {
     }
   };
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     async function fetchProduct() {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/products/${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         if (!response.ok) {
           throw new Error("Failed to fetch product");
