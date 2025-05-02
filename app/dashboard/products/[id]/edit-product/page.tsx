@@ -379,12 +379,17 @@ export default function EditProductPage() {
       toast.success("Product updated successfully");
       router.push("/dashboard/products");
       router.refresh();
-    } catch (error: Error) {
-      console.error("Error updating product:", error);
-      toast.error(error.message || "Something went wrong");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error updating product:", error);
+        toast.error(error.message || "Something went wrong");
+      } else {
+        console.error("Unexpected error:", error);
+        toast.error("Something went wrong");
+      }
     } finally {
       setIsLoading(false);
-    }
+    } 
   }
 
   if (!product) {
