@@ -13,14 +13,23 @@ import { BackPage } from "@/app/components/backPage/backpage";
 interface Product {
   _id: string;
   name: string;
-  description: string;
+  shortDescription: string;
+  longDescription: string;
+  designer: string;
+  features: string[];
   price: number;
   category: string;
-  sizes: string[];
-  colors: string[];
   stock: number;
   images: string[];
   isPreOrder: boolean;
+  sizes: string[];
+  colors: string[];
+  material: string;
+  weight: string;
+  dimensions: string;
+  isFeatured: boolean;
+  isOnSale: boolean;
+  salePrice: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,13 +45,21 @@ export default function ProductDetailsPage() {
     if (!token) {
       router.push("/login");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     async function fetchProduct() {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         if (!response.ok) {
@@ -52,6 +69,7 @@ export default function ProductDetailsPage() {
         const data = await response.json();
         setProduct(data);
       } catch (error) {
+        console.error("Error fetching product:", error);
         toast.error("Failed to fetch product");
       } finally {
         setLoading(false);
@@ -60,8 +78,6 @@ export default function ProductDetailsPage() {
 
     fetchProduct();
   }, [id]);
-
-  console.log(product);
 
   if (loading) {
     return (
@@ -130,17 +146,52 @@ export default function ProductDetailsPage() {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-semibold text-lg">{product.name}</h3>
-              <p className="text-2xl font-bold mt-1">${product.price}</p>
+              <p className="text-2xl font-bold mt-1">
+                {product.isOnSale ? (
+                  <>
+                    <span className="text-gray-500 mr-2">${product.price}</span>
+                    ${product.salePrice}
+                  </>
+                ) : (
+                  `$${product.price}`
+                )}
+              </p>
               {product.isPreOrder && (
                 <Badge className="mt-2 bg-amber-500">Pre-Order</Badge>
+              )}
+              {product.isFeatured && (
+                <Badge className="mt-2 ml-2 bg-purple-500">Featured</Badge>
               )}
               <Badge className="ml-2 mt-2">{product.category}</Badge>
             </div>
 
             <div>
-              <h4 className="font-medium text-sm text-gray-500">Description</h4>
-              <p className="mt-1">{product.description}</p>
+              <h4 className="font-medium text-sm text-gray-500">Short Description</h4>
+              <p className="mt-1">{product.shortDescription}</p>
             </div>
+
+            <div>
+              <h4 className="font-medium text-sm text-gray-500">Full Description</h4>
+              <p className="mt-1">{product.longDescription}</p>
+            </div>
+
+            {product.designer && (
+              <div>
+                <h4 className="font-medium text-sm text-gray-500">Designer</h4>
+                <p className="mt-1">{product.designer}</p>
+              </div>
+            )}
+
+            {product.features && product.features.length > 0 && (
+              <div>
+                <h4 className="font-medium text-sm text-gray-500">Features</h4>
+                <ul className="list-disc pl-5 mt-1">
+                  {product.features.map((feature, index) => (
+                    <li key={index}>{feature}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -186,6 +237,28 @@ export default function ProductDetailsPage() {
                 )}
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {product.material && (
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Material</h4>
+                  <p className="mt-1">{product.material}</p>
+                </div>
+              )}
+              {product.weight && (
+                <div>
+                  <h4 className="font-medium text-sm text-gray-500">Weight</h4>
+                  <p className="mt-1">{product.weight}</p>
+                </div>
+              )}
+            </div>
+
+            {product.dimensions && (
+              <div>
+                <h4 className="font-medium text-sm text-gray-500">Dimensions</h4>
+                <p className="mt-1">{product.dimensions}</p>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div>

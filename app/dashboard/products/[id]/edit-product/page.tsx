@@ -21,9 +21,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 import { BackPage } from "@/app/components/backPage/backpage";
 
+interface ProductImage {
+  url: string;
+  file?: File;
+}
+
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
+  shortDescription: z.string().min(1, "Short description is required"),
+  longDescription: z.string().min(1, "Long description is required"),
   price: z.string().min(1, "Price is required"),
   category: z.string().min(1, "Category is required"),
   stock: z.string().min(1, "Stock is required"),
@@ -32,18 +38,29 @@ const productSchema = z.object({
     .min(1, "At least one image is required")
     .max(5, "Maximum 5 images allowed"),
   isPreOrder: z.boolean(),
+  isFeatured: z.boolean(),
+  isOnSale: z.boolean(),
+  salePrice: z.string().optional(),
+  designer: z.string().optional(),
+  features: z.array(z.string()),
   sizes: z.array(z.string()).min(1, "At least one size is required"),
   colors: z.array(z.string()).min(1, "At least one color is required"),
+  material: z.string().optional(),
+  weight: z.string().optional(),
+  dimensions: z.string().optional(),
 });
 
 export default function EditProductPage() {
   const { id } = useParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [product, setProduct] = useState<any>(null);
-  const [images, setImages] = useState<any[]>([]);
+  const [product, setProduct] = useState<z.infer<typeof productSchema> | null>(
+    null
+  );
+  const [images, setImages] = useState<ProductImage[]>([]);
   const [sizes, setSizes] = useState<string[]>([""]);
   const [colors, setColors] = useState<string[]>([""]);
+  const [features, setFeatures] = useState<string[]>([""]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
 
   useEffect(() => {
@@ -51,20 +68,29 @@ export default function EditProductPage() {
     if (!token) {
       router.push("/login");
     }
-  }, []);
+  }, [router]);
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: "",
-      description: "",
+      shortDescription: "",
+      longDescription: "",
       price: "",
       category: "",
       stock: "",
       images: [],
       isPreOrder: false,
+      isFeatured: false,
+      isOnSale: false,
+      salePrice: "",
+      designer: "",
+      features: [""],
       sizes: [""],
       colors: [""],
+      material: "",
+      weight: "",
+      dimensions: "",
     },
   });
 
@@ -75,7 +101,7 @@ export default function EditProductPage() {
     const files = e.target.files;
     if (files && files.length > 0) {
       const newImages = [...images];
-      newImages[index] = files[0];
+      newImages[index] = { url: URL.createObjectURL(files[0]), file: files[0] };
       setImages(newImages);
       form.setValue("images", newImages);
     }
@@ -83,7 +109,7 @@ export default function EditProductPage() {
 
   const addImageField = () => {
     if (images.length < 5) {
-      setImages([...images, null]);
+      setImages([...images, { url: "" }]);
     }
   };
 
@@ -100,7 +126,7 @@ export default function EditProductPage() {
     setExistingImages(newExistingImages);
     form.setValue("images", [
       ...newExistingImages,
-      ...images.filter((img) => img !== null),
+      ...images.filter((img) => img.url !== ""),
     ]);
   };
 
@@ -154,7 +180,30 @@ export default function EditProductPage() {
     }
   };
 
-  
+  const handleFeatureChange = (value: string, index: number) => {
+    const newFeatures = [...features];
+    newFeatures[index] = value;
+    setFeatures(newFeatures);
+    form.setValue(
+      "features",
+      newFeatures.filter((feature) => feature.trim() !== "")
+    );
+  };
+
+  const addFeatureField = () => {
+    setFeatures([...features, ""]);
+  };
+
+  const removeFeatureField = (index: number) => {
+    if (features.length > 1) {
+      const newFeatures = features.filter((_, i) => i !== index);
+      setFeatures(newFeatures);
+      form.setValue(
+        "features",
+        newFeatures.filter((feature) => feature.trim() !== "")
+      );
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -177,9 +226,9 @@ export default function EditProductPage() {
         // Handle existing images
         if (data.images && Array.isArray(data.images)) {
           setExistingImages(data.images);
-          setImages([null]);
+          setImages([{ url: "" }]);
         } else {
-          setImages([null]);
+          setImages([{ url: "" }]);
         }
 
         // Handle sizes
@@ -200,16 +249,36 @@ export default function EditProductPage() {
           setColors([""]);
         }
 
+        // Handle features
+        if (
+          data.features &&
+          Array.isArray(data.features) &&
+          data.features.length > 0
+        ) {
+          setFeatures(data.features);
+        } else {
+          setFeatures([""]);
+        }
+
         form.reset({
           name: data.name || "",
-          description: data.description || "",
+          shortDescription: data.shortDescription || "",
+          longDescription: data.longDescription || "",
           price: data.price ? data.price.toString() : "",
           category: data.category || "",
           stock: data.stock ? data.stock.toString() : "",
           images: data.images || [],
           isPreOrder: data.isPreOrder || false,
+          isFeatured: data.isFeatured || false,
+          isOnSale: data.isOnSale || false,
+          salePrice: data.salePrice ? data.salePrice.toString() : "",
+          designer: data.designer || "",
+          features: data.features || [""],
           sizes: data.sizes || [""],
           colors: data.colors || [""],
+          material: data.material || "",
+          weight: data.weight || "",
+          dimensions: data.dimensions || "",
         });
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -226,30 +295,63 @@ export default function EditProductPage() {
   async function onSubmit(values: z.infer<typeof productSchema>) {
     try {
       setIsLoading(true);
+      const token = localStorage.getItem("token"); // ✅ Add this
+      if (!token) {
+        toast.error("Not authorized, no token");
+        router.push("/login");
+        return;
+      }
       const formData = new FormData();
       formData.append("name", values.name);
-      formData.append("description", values.description);
+      formData.append("shortDescription", values.shortDescription);
+      formData.append("longDescription", values.longDescription);
       formData.append("price", values.price);
       formData.append("category", values.category);
       formData.append("stock", values.stock);
       formData.append("isPreOrder", values.isPreOrder.toString());
+      formData.append("isFeatured", values.isFeatured.toString());
+      formData.append("isOnSale", values.isOnSale.toString());
+
+      if (values.salePrice) {
+        formData.append("salePrice", values.salePrice);
+      }
+
+      if (values.designer) {
+        formData.append("designer", values.designer);
+      }
+
+      if (values.material) {
+        formData.append("material", values.material);
+      }
+
+      if (values.weight) {
+        formData.append("weight", values.weight);
+      }
+
+      if (values.dimensions) {
+        formData.append("dimensions", values.dimensions);
+      }
 
       // Filter out empty strings
       const filteredSizes = values.sizes.filter((size) => size.trim() !== "");
       const filteredColors = values.colors.filter(
         (color) => color.trim() !== ""
       );
+      const filteredFeatures = values.features.filter(
+        (feature) => feature.trim() !== ""
+      );
 
       formData.append("sizes", JSON.stringify(filteredSizes));
       formData.append("colors", JSON.stringify(filteredColors));
+      formData.append("features", JSON.stringify(filteredFeatures));
 
       // Append existing images
       formData.append("existingImages", JSON.stringify(existingImages));
 
       // Append new image files
-      images.forEach((image, index) => {
-        if (image instanceof File) {
-          formData.append("images", image);
+      images.forEach((image) => {
+        if (image.file instanceof File) {
+          formData.append("images", image.file);
         }
       });
 
@@ -257,6 +359,9 @@ export default function EditProductPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
         {
           method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formData,
         }
       );
@@ -269,7 +374,7 @@ export default function EditProductPage() {
       toast.success("Product updated successfully");
       router.push("/dashboard/products");
       router.refresh();
-    } catch (error: any) {
+    } catch (error: Error) {
       console.error("Error updating product:", error);
       toast.error(error.message || "Something went wrong");
     } finally {
@@ -312,12 +417,33 @@ export default function EditProductPage() {
 
           <FormField
             control={form.control}
-            name="description"
+            name="shortDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>Short Description</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Product description" {...field} />
+                  <Textarea
+                    placeholder="Brief product description"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="longDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Long Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Detailed product description"
+                    {...field}
+                    rows={5}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -375,24 +501,192 @@ export default function EditProductPage() {
 
           <FormField
             control={form.control}
-            name="isPreOrder"
+            name="designer"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormItem>
+                <FormLabel>Designer</FormLabel>
                 <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Input placeholder="Product designer" {...field} />
                 </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Pre-order</FormLabel>
-                  <p className="text-sm text-muted-foreground">
-                    Mark this product as available for pre-order
-                  </p>
-                </div>
+                <FormMessage />
               </FormItem>
             )}
           />
+
+          <div className="grid grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="material"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Material</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Product material" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Product weight" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dimensions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dimensions</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Product dimensions" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="isPreOrder"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Pre-order</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Mark this product as available for pre-order
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isFeatured"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Featured</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Mark this product as featured
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isOnSale"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>On Sale</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Mark this product as on sale
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {form.watch("isOnSale") && (
+            <FormField
+              control={form.control}
+              name="salePrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sale Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Features */}
+          <div className="space-y-4">
+            <FormLabel>Features</FormLabel>
+            {features.map((feature, index) => (
+              <div key={index} className="flex gap-2">
+                <FormField
+                  control={form.control}
+                  name={`features.${index}`}
+                  render={() => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input
+                          placeholder="Enter product feature"
+                          value={feature}
+                          onChange={(e) =>
+                            handleFeatureChange(e.target.value, index)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {features.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => removeFeatureField(index)}
+                    className="mt-0"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addFeatureField}
+              className="mt-2"
+            >
+              Add Another Feature
+            </Button>
+          </div>
 
           {/* Image Upload */}
           <div className="space-y-4">
@@ -402,9 +696,7 @@ export default function EditProductPage() {
                 {existingImages.map((img, idx) => (
                   <div key={idx} className="relative">
                     <img
-                      src={
-                        typeof img === "string" ? img : URL.createObjectURL(img)
-                      }
+                      src={img}
                       alt={`Product image ${idx + 1}`}
                       className="h-24 w-24 object-cover rounded-md"
                     />
@@ -426,14 +718,13 @@ export default function EditProductPage() {
                 <FormField
                   control={form.control}
                   name={`images.${index}`}
-                  render={({ field: { value, onChange, ...field } }) => (
+                  render={() => (
                     <FormItem className="flex-1">
                       <FormControl>
                         <Input
                           type="file"
                           accept="image/*"
                           onChange={(e) => handleImageChange(e, index)}
-                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -472,7 +763,7 @@ export default function EditProductPage() {
                 <FormField
                   control={form.control}
                   name={`sizes.${index}`}
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem className="flex-1">
                       <FormControl>
                         <Input
@@ -517,7 +808,7 @@ export default function EditProductPage() {
                 <FormField
                   control={form.control}
                   name={`colors.${index}`}
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem className="flex-1">
                       <FormControl>
                         <Input

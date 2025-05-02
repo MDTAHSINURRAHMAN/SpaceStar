@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 export default function BannerPage() {
   const [banner, setBanner] = useState<string | null>(null);
@@ -23,6 +25,7 @@ export default function BannerPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [promoText, setPromoText] = useState<string>("");
 
   const router = useRouter();
 
@@ -48,6 +51,7 @@ export default function BannerPage() {
       
       const data = await response.json();
       setBanner(data.imageUrl);
+      setPromoText(data.text || "Pre-orders enjoy 10% off Full price item");
     } catch (error) {
       console.error("Error fetching banner:", error);
       toast.error("Failed to fetch banner");
@@ -77,6 +81,7 @@ export default function BannerPage() {
       setUpdating(true);
       const formData = new FormData();
       formData.append("image", selectedFile);
+      formData.append("promoText", promoText);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banner`, {
         method: "PUT",
@@ -104,6 +109,39 @@ export default function BannerPage() {
     } catch (error) {
       console.error("Error updating banner:", error);
       toast.error("Failed to update banner");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handlePromoTextChange = async () => {
+    try {
+      setUpdating(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found");
+      }
+
+      const formData = new FormData();
+      formData.append("promoText", promoText);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banner/text`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ text: promoText }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update promotion text");
+      }
+
+      toast.success("Promotion text updated successfully");
+    } catch (error) {
+      console.error("Error updating promotion text:", error);
+      toast.error("Failed to update promotion text");
     } finally {
       setUpdating(false);
     }
@@ -206,6 +244,41 @@ export default function BannerPage() {
               <p className="text-gray-500">No banner image available</p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Promotion Text</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="promoText">Promotion Message</Label>
+              <Textarea
+                id="promoText"
+                value={promoText}
+                onChange={(e) => setPromoText(e.target.value)}
+                placeholder={promoText}
+                className="mt-2"
+              />
+            </div>
+            <div className="flex justify-end">
+              <Button 
+                onClick={handlePromoTextChange}
+                disabled={updating}
+              >
+                {updating ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Promotion Text"
+                )}
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
