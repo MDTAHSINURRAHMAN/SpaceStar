@@ -280,10 +280,15 @@ export default function EditProductPage() {
           weight: data.weight || "",
           dimensions: data.dimensions || "",
         });
-      } catch (error) {
-        console.error("Error fetching product:", error);
-        toast.error("Failed to fetch product");
-        router.push("/dashboard/products");
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Error fetching product:", error);
+          toast.error("Failed to fetch product");
+          router.push("/dashboard/products");
+        } else {
+          console.error("Unexpected error:", error);
+          toast.error("Something went wrong");
+        }
       }
     }
 
