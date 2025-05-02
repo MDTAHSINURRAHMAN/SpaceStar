@@ -40,8 +40,8 @@ const productSchema = z.object({
   material: z.string().optional(),
   weight: z.string().optional(),
   dimensions: z.string().optional(),
-  isFeatured: z.boolean().default(false),
-  isOnSale: z.boolean().default(false),
+  isFeatured: z.boolean(),
+  isOnSale: z.boolean(),
   salePrice: z.string().optional(),
 });
 
