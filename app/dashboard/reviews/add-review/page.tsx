@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -14,56 +14,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Star } from "lucide-react";
+import { Star, Upload } from "lucide-react";
 import { toast } from "sonner";
-
-interface Product {
-  _id: string;
-  name: string;
-}
+import { useGetAllProductsQuery } from "@/lib/api/productApi";
+import { useCreateReviewMutation } from "@/lib/api/reviewApi";
 
 export default function AddReviewPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     product: "",
     customer: "",
     comment: "",
+    subtext: "", // ✅ Add this
     status: "Pending",
   });
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    async function fetchProducts() {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/products`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
-        }
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        toast.error("Failed to fetch products");
-      }
-    }
-
-    fetchProducts();
-  }, [router]);
+  const { data: products = [] } = useGetAllProductsQuery();
+  const [createReview, { isLoading }] = useCreateReviewMutation();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -82,44 +53,48 @@ export default function AddReviewPage() {
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImage(file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImagePreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.product || !formData.customer || !rating) {
       toast.error("Please fill all required fields");
       return;
     }
 
-    setIsLoading(true);
-    
+    const formPayload = new FormData();
+    formPayload.append("productId", formData.product);
+    formPayload.append("name", formData.customer);
+    formPayload.append("rating", rating.toString());
+    formPayload.append("review", formData.comment);
+    formPayload.append("subtext", formData.subtext);
+    formPayload.append("status", formData.status);
+
+    if (image) {
+      formPayload.append("image", image); // ✅ Send image file
+    }
+
+    console.log("📷 review", formPayload);
+
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            ...formData,
-            rating,
-            date: new Date().toISOString().split("T")[0],
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to add review");
-      }
-
+      await createReview(formPayload).unwrap(); // <-- Ensure your RTK endpoint supports multipart/form-data
       toast.success("Review added successfully");
       router.push("/dashboard/reviews");
     } catch (error) {
       toast.error("Failed to add review");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -168,7 +143,7 @@ export default function AddReviewPage() {
               </SelectTrigger>
               <SelectContent>
                 {products.map((product) => (
-                  <SelectItem key={product._id} value={product.name}>
+                  <SelectItem key={product._id} value={product._id}>
                     {product.name}
                   </SelectItem>
                 ))}
@@ -194,6 +169,17 @@ export default function AddReviewPage() {
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="subtext">Subtext</Label>
+          <Input
+            id="subtext"
+            name="subtext"
+            value={formData.subtext}
+            onChange={handleInputChange}
+            placeholder="Enter subtext"
+          />
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="comment">Comment</Label>
           <Textarea
             id="comment"
@@ -203,6 +189,41 @@ export default function AddReviewPage() {
             placeholder="Enter review comment"
             rows={4}
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="image">Upload Image</Label>
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center gap-4">
+              <label htmlFor="image-upload" className="cursor-pointer">
+                <div className="flex h-10 items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Image
+                </div>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </label>
+              {image && (
+                <span className="text-sm text-muted-foreground">
+                  {image.name}
+                </span>
+              )}
+            </div>
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-40 w-auto rounded-md object-cover"
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">

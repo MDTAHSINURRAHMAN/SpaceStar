@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Table,
@@ -12,75 +12,31 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Search, Star, Plus } from "lucide-react";
+import { Search, Star, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-const statusColors = {
-  Approved: "bg-green-500",
-  Pending: "bg-yellow-500",
-  Rejected: "bg-red-500",
-};
-
-// Define a Review type
-interface Review {
-  id: string;
-  product: string;
-  customer: string;
-  rating: number;
-  comment: string;
-  date: string;
-  status: string;
-}
+import { useGetAllReviewsQuery } from "@/lib/api/reviewApi";
+import { useGetAllProductsQuery } from "@/lib/api/productApi";
 
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    async function fetchReviews() {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/reviews`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch reviews");
-        }
-        const data = await response.json();
-        setReviews(
-          data.map((review: any) => ({
-            ...review,
-            id: review._id, // Convert _id to id
-          }))
-        );
-      } catch {
-        setReviews([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchReviews();
-  }, []);
+  const { data: reviews = [], isLoading } = useGetAllReviewsQuery();
+  const { data: products = [] } = useGetAllProductsQuery();
+
+  // Create a mapping of product IDs to product names
+  const productMap = products.reduce((acc, product) => {
+    acc[product._id] = product.name;
+    return acc;
+  }, {} as Record<string, string>);
 
   const filteredReviews = reviews.filter(
     (review) =>
-      review.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      review.customer.toLowerCase().includes(searchQuery.toLowerCase())
+      (productMap[review.productId]
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ??
+        false) ||
+      (review.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   );
 
   const renderStars = (rating: number) => {
@@ -95,17 +51,10 @@ export default function ReviewsPage() {
   };
 
   const handleViewDetails = (reviewId: string) => {
-    console.log("Viewing details for review ID:", reviewId);
     router.push(`/dashboard/reviews/${reviewId}`);
   };
 
-  const handleEdit = (reviewId: string) => {
-    router.push(`/dashboard/reviews/${reviewId}/edit-review`);
-  };
-
-  const handleDelete = (reviewId: string) => {
-    router.push(`/dashboard/reviews/delete/${reviewId}`);
-  };
+  console.log("🧾 Reviews received:", reviews);
 
   return (
     <motion.div
@@ -143,58 +92,33 @@ export default function ReviewsPage() {
                 <TableHead>Rating</TableHead>
                 <TableHead>Comment</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[70px]"></TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredReviews.map((review) => (
-                <TableRow key={review.id}>
+                <TableRow key={review._id}>
                   <TableCell className="font-medium">
-                    {review.product}
+                    {productMap[review.productId] || review.productId}
                   </TableCell>
-                  <TableCell>{review.customer}</TableCell>
+                  <TableCell>{review.name}</TableCell>
                   <TableCell>
                     <div className="flex">{renderStars(review.rating)}</div>
                   </TableCell>
                   <TableCell className="max-w-[200px] truncate">
-                    {review.comment}
+                    {review.review}
                   </TableCell>
-                  <TableCell>{review.date}</TableCell>
                   <TableCell>
-                    <Badge
-                      className={`${
-                        statusColors[review.status as keyof typeof statusColors]
-                      } text-white`}
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewDetails(review._id)}
                     >
-                      {review.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={() => handleViewDetails(review.id)}
-                        >
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEdit(review.id)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(review.id)}
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      View
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

@@ -8,12 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { BackPage } from "@/app/components/backPage/backpage";
+import { useCreateOrderMutation } from "@/lib/api/orderApi"; // ✅ Import RTK mutation
 
 interface OrderItem {
   name: string;
-  email: string;
-  number: string;
-  address: string;
+  email?: string;
+  number?: string;
+  address?: string;
   quantity: number;
   price: number;
 }
@@ -33,6 +34,7 @@ interface OrderFormData {
 
 export default function AddOrderPage() {
   const router = useRouter();
+  const [createOrder] = useCreateOrderMutation(); // ✅ RTK mutation hook
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<OrderFormData>({
     customerName: "",
@@ -78,22 +80,11 @@ export default function AddOrderPage() {
     try {
       const totalAmount = parseFloat(calculateTotal());
       const orderData = { ...formData, totalAmount };
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(orderData),
-        }
-      );
 
-      if (response.ok) {
-        router.push("/dashboard/orders");
-      } else {
-        throw new Error("Failed to create order");
-      }
+      await createOrder(orderData).unwrap(); // ✅ RTK mutation used here
+
+      toast.success("Order created successfully");
+      router.push("/dashboard/orders");
     } catch (error) {
       console.error("Error creating order:", error);
       toast.error("Failed to create order");
@@ -104,9 +95,7 @@ export default function AddOrderPage() {
 
   const calculateTotal = () => {
     return formData.items
-      .reduce((total, item) => {
-        return total + item.quantity * item.price;
-      }, 0)
+      .reduce((total, item) => total + item.quantity * item.price, 0)
       .toFixed(2);
   };
 

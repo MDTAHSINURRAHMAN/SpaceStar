@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,66 +13,40 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-interface Order {
-  _id: string;
-  customerName: string;
-  customerEmail: string;
-  customerNumber: string;
-  customerAddress: string;
-  items: {
-    name: string;
-    quantity: number;
-    price: number;
-  }[];
-  totalAmount: number;
-  status: string;
-  createdAt: string;
-}
+import {
+  useGetAllOrdersQuery,
+  useDeleteOrderMutation,
+} from "@/lib/api/orderApi"; // adjust path if needed
+import { useState } from "react";
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { data: orders = [], isLoading } = useGetAllOrdersQuery();
+  const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+  const [deleteOrder] = useDeleteOrderMutation();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    }
-  }, []);
+  const handleDeleteOrder = async () => {
+    if (!deleteOrderId) return;
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetchOrders(token);
-    }
-  }, []);
-
-  const fetchOrders = async (token: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      
-      // Check if data is an array before setting it
-      if (Array.isArray(data)) {
-        setOrders(data);
-      } else {
-        // If data is not an array, set orders to empty array and show error
-        setOrders([]);
-        toast.error("Invalid data format received from server");
-        console.error("Expected array of orders but got:", data);
-      }
+      await deleteOrder(deleteOrderId).unwrap();
+      toast.success("Order deleted successfully");
     } catch (error) {
-      console.error("Error fetching orders:", error);
-      toast.error("Failed to fetch orders");
-      setOrders([]);
+      console.error("Delete error:", error);
+      toast.error("Failed to delete order");
     } finally {
-      setLoading(false);
+      setDeleteOrderId(null);
     }
   };
 
@@ -92,9 +65,7 @@ export default function OrdersPage() {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto py-6">
@@ -125,13 +96,13 @@ export default function OrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders && orders.length > 0 ? (
+              {orders.length > 0 ? (
                 orders.map((order) => (
                   <TableRow key={order._id}>
                     <TableCell>{order.customerName}</TableCell>
                     <TableCell>{order.customerEmail}</TableCell>
                     <TableCell>{order.customerNumber}</TableCell>
-                    <TableCell>{order.customerAddress}</TableCell>
+                    <TableCell>{order.customerAddress || "N/A"}</TableCell>
                     <TableCell>
                       {order.items.map((item) => (
                         <div key={item.name}>
@@ -149,15 +120,35 @@ export default function OrdersPage() {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          router.push(`/dashboard/orders/${order._id}`)
-                        }
-                      >
-                        View
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            router.push(`/dashboard/orders/${order._id}`)
+                          }
+                        >
+                          View
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/orders/${order._id}/edit-order`
+                            )
+                          }
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setDeleteOrderId(order._id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -172,6 +163,27 @@ export default function OrdersPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog
+        open={!!deleteOrderId}
+        onOpenChange={() => setDeleteOrderId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              order.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteOrder}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

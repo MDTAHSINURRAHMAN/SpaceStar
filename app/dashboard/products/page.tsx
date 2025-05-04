@@ -20,79 +20,27 @@ import {
 import { MoreHorizontal, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
 
-interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  sizes: string[];
-  colors: string[];
-  stock: number;
-  imageUrl: string;
-  isPreOrder: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-async function fetchProducts(): Promise<Product[]> {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
-  }
-
-  const data = await response.json();
-  return data;
-}
+import {
+  useGetAllProductsQuery,
+  useDeleteProductMutation,
+} from "@/lib/api/productApi"; // ✅ import RTK hooks
 
 export default function ProductsPage() {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    }
-  }, []);
-
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        const data = await fetchProducts();
-        setProducts(data);
-      } catch (error) {
-        toast.error("Failed to fetch products");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadProducts();
-  }, []);
+  const { data: products = [], isLoading } = useGetAllProductsQuery(); // ✅ auto-fetch + caching
+  const [deleteProduct] = useDeleteProductMutation();
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete product");
-      }
-
+      await deleteProduct(id).unwrap(); // ✅ delete with auto-invalidation
       toast.success("Product deleted successfully");
-      setProducts(products.filter((product) => product._id !== id));
     } catch (error) {
       toast.error("Failed to delete product");
     }
   };
+
+  console.log("🧾 Products received:", products);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -107,7 +55,7 @@ export default function ProductsPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border mt-6">
         <Table>
           <TableHeader>
             <TableRow>
@@ -123,7 +71,7 @@ export default function ProductsPage() {
             {products.map((product) => (
               <TableRow key={product._id}>
                 <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell>{product.description}</TableCell>
+                <TableCell>{product.shortDescription}</TableCell>
                 <TableCell>${product.price}</TableCell>
                 <TableCell>{product.stock}</TableCell>
                 <TableCell>{product.category}</TableCell>
@@ -146,7 +94,6 @@ export default function ProductsPage() {
                       >
                         Edit
                       </DropdownMenuItem>
-                      {/* View Product */}
                       <DropdownMenuItem
                         onClick={() =>
                           router.push(`/dashboard/products/${product._id}`)
@@ -154,7 +101,6 @@ export default function ProductsPage() {
                       >
                         View Product
                       </DropdownMenuItem>
-
                       <DropdownMenuItem
                         onClick={() => handleDelete(product._id)}
                         className="text-red-600"

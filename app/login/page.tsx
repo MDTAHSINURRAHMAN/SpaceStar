@@ -2,27 +2,25 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useLoginMutation } from "@/lib/api/loginApi"; // ✅ RTK hook
 
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
 
+  const [login, { isLoading }] = useLoginMutation(); // ✅ RTK mutation hook
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem("token", data.token);
+    try {
+      const response = await login(form).unwrap(); // ✅ call RTK mutation
+      localStorage.setItem("token", response.token);
       router.push("/dashboard");
-    } else {
-      setError(data.message || "Login failed");
+    } catch (err: any) {
+      console.error("Login failed:", err);
+      setError(err?.data?.message || "Login failed");
     }
   };
 
@@ -45,8 +43,12 @@ export default function LoginPage() {
           className="border px-4 py-2 w-full"
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button type="submit" className="bg-black text-white px-4 py-2 w-full">
-          Login
+        <button
+          type="submit"
+          className="bg-black text-white px-4 py-2 w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

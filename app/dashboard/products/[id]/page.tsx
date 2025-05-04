@@ -1,45 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import Image from "next/image";
 import { Edit } from "lucide-react";
 import { BackPage } from "@/app/components/backPage/backpage";
-
-interface Product {
-  _id: string;
-  name: string;
-  shortDescription: string;
-  longDescription: string;
-  designer: string;
-  features: string[];
-  price: number;
-  category: string;
-  stock: number;
-  images: string[];
-  isPreOrder: boolean;
-  sizes: string[];
-  colors: string[];
-  material: string;
-  weight: string;
-  dimensions: string;
-  isFeatured: boolean;
-  isOnSale: boolean;
-  salePrice: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useGetProductQuery } from "@/lib/api/productApi"; // ✅ import RTK hook
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // ✅ Protect route if not logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -47,39 +22,14 @@ export default function ProductDetailsPage() {
     }
   }, [router]);
 
-  useEffect(() => {
-    async function fetchProduct() {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  // ✅ Use RTK Query for fetching product
+  const {
+    data: product,
+    isLoading,
+    error,
+  } = useGetProductQuery(id as string);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch product");
-        }
-
-        const data = await response.json();
-        setProduct(data);
-      } catch (error) {
-        console.error("Error fetching product:", error);
-        toast.error("Failed to fetch product");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProduct();
-  }, [id]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         Loading...
@@ -87,7 +37,7 @@ export default function ProductDetailsPage() {
     );
   }
 
-  if (!product) {
+  if (error || !product) {
     return (
       <div className="flex justify-center items-center h-screen">
         Product not found
@@ -103,20 +53,23 @@ export default function ProductDetailsPage() {
           <h1 className="text-2xl font-bold">Product Details</h1>
         </div>
         <Button
-          onClick={() => router.push(`/dashboard/products/${id}/edit-product`)}
+          onClick={() =>
+            router.push(`/dashboard/products/${product._id}/edit-product`)
+          }
         >
           <Edit className="mr-2 h-4 w-4" /> Edit Product
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Product Images */}
         <Card>
           <CardHeader>
             <CardTitle>Product Images</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              {product.images && product.images.length > 0 ? (
+              {product.images?.length ? (
                 product.images.map((url, index) => (
                   <div
                     key={index}
@@ -139,6 +92,7 @@ export default function ProductDetailsPage() {
           </CardContent>
         </Card>
 
+        {/* Product Info */}
         <Card>
           <CardHeader>
             <CardTitle>Product Information</CardTitle>
@@ -182,7 +136,7 @@ export default function ProductDetailsPage() {
               </div>
             )}
 
-            {product.features && product.features.length > 0 && (
+            {product.features?.length > 0 && (
               <div>
                 <h4 className="font-medium text-sm text-gray-500">Features</h4>
                 <ul className="list-disc pl-5 mt-1">
@@ -205,11 +159,9 @@ export default function ProductDetailsPage() {
             </div>
 
             <div>
-              <h4 className="font-medium text-sm text-gray-500">
-                Available Sizes
-              </h4>
+              <h4 className="font-medium text-sm text-gray-500">Available Sizes</h4>
               <div className="flex flex-wrap gap-2 mt-1">
-                {product.sizes && product.sizes.length > 0 ? (
+                {product.sizes.length ? (
                   product.sizes.map((size, index) => (
                     <Badge key={index} variant="outline">
                       {size}
@@ -222,11 +174,9 @@ export default function ProductDetailsPage() {
             </div>
 
             <div>
-              <h4 className="font-medium text-sm text-gray-500">
-                Available Colors
-              </h4>
+              <h4 className="font-medium text-sm text-gray-500">Available Colors</h4>
               <div className="flex flex-wrap gap-2 mt-1">
-                {product.colors && product.colors.length > 0 ? (
+                {product.colors.length ? (
                   product.colors.map((color, index) => (
                     <Badge key={index} variant="outline">
                       {color}
@@ -262,20 +212,12 @@ export default function ProductDetailsPage() {
 
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div>
-                <h4 className="font-medium text-sm text-gray-500">
-                  Created At
-                </h4>
-                <p className="mt-1">
-                  {new Date(product.createdAt).toLocaleDateString()}
-                </p>
+                <h4 className="font-medium text-sm text-gray-500">Created At</h4>
+                <p className="mt-1">{new Date(product.createdAt).toLocaleDateString()}</p>
               </div>
               <div>
-                <h4 className="font-medium text-sm text-gray-500">
-                  Last Updated
-                </h4>
-                <p className="mt-1">
-                  {new Date(product.updatedAt).toLocaleDateString()}
-                </p>
+                <h4 className="font-medium text-sm text-gray-500">Last Updated</h4>
+                <p className="mt-1">{new Date(product.updatedAt).toLocaleDateString()}</p>
               </div>
             </div>
           </CardContent>

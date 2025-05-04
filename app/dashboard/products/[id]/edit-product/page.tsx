@@ -20,6 +20,10 @@ import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 import { BackPage } from "@/app/components/backPage/backpage";
+import {
+  useGetProductQuery,
+  useUpdateProductMutation,
+} from "@/lib/api/productApi";
 
 interface ProductImage {
   url: string;
@@ -53,22 +57,19 @@ const productSchema = z.object({
 export default function EditProductPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [product, setProduct] = useState<z.infer<typeof productSchema> | null>(
-    null
-  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ProductImage[]>([]);
   const [sizes, setSizes] = useState<string[]>([""]);
   const [colors, setColors] = useState<string[]>([""]);
   const [features, setFeatures] = useState<string[]>([""]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    }
-  }, [router]);
+  const {
+    data: product,
+    isLoading,
+    error,
+    refetch,
+  } = useGetProductQuery(id as string);
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -93,6 +94,38 @@ export default function EditProductPage() {
       dimensions: "",
     },
   });
+
+  useEffect(() => {
+    if (product) {
+      form.reset({
+        name: product.name || "",
+        shortDescription: product.shortDescription || "",
+        longDescription: product.longDescription || "",
+        price: product.price?.toString() || "",
+        category: product.category || "",
+        stock: product.stock?.toString() || "",
+        images: product.images || [],
+        isPreOrder: product.isPreOrder || false,
+        isFeatured: product.isFeatured || false,
+        isOnSale: product.isOnSale || false,
+        salePrice: product.salePrice?.toString() || "",
+        designer: product.designer || "",
+        features: product.features || [""],
+        sizes: product.sizes || [""],
+        colors: product.colors || [""],
+        material: product.material || "",
+        weight: product.weight || "",
+        dimensions: product.dimensions || "",
+      });
+
+      // Populate local states
+      setExistingImages(product.images || []);
+      setImages([{ url: "" }]);
+      setSizes(product.sizes || [""]);
+      setColors(product.colors || [""]);
+      setFeatures(product.features || [""]);
+    }
+  }, [product, form]);
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -204,108 +237,18 @@ export default function EditProductPage() {
       );
     }
   };
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    async function fetchProduct() {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch product");
-        }
-        const data = await response.json();
-        setProduct(data);
-
-        // Handle existing images
-        if (data.images && Array.isArray(data.images)) {
-          setExistingImages(data.images);
-          setImages([{ url: "" }]);
-        } else {
-          setImages([{ url: "" }]);
-        }
-
-        // Handle sizes
-        if (data.sizes && Array.isArray(data.sizes) && data.sizes.length > 0) {
-          setSizes(data.sizes);
-        } else {
-          setSizes([""]);
-        }
-
-        // Handle colors
-        if (
-          data.colors &&
-          Array.isArray(data.colors) &&
-          data.colors.length > 0
-        ) {
-          setColors(data.colors);
-        } else {
-          setColors([""]);
-        }
-
-        // Handle features
-        if (
-          data.features &&
-          Array.isArray(data.features) &&
-          data.features.length > 0
-        ) {
-          setFeatures(data.features);
-        } else {
-          setFeatures([""]);
-        }
-
-        form.reset({
-          name: data.name || "",
-          shortDescription: data.shortDescription || "",
-          longDescription: data.longDescription || "",
-          price: data.price ? data.price.toString() : "",
-          category: data.category || "",
-          stock: data.stock ? data.stock.toString() : "",
-          images: data.images || [],
-          isPreOrder: data.isPreOrder || false,
-          isFeatured: data.isFeatured || false,
-          isOnSale: data.isOnSale || false,
-          salePrice: data.salePrice ? data.salePrice.toString() : "",
-          designer: data.designer || "",
-          features: data.features || [""],
-          sizes: data.sizes || [""],
-          colors: data.colors || [""],
-          material: data.material || "",
-          weight: data.weight || "",
-          dimensions: data.dimensions || "",
-        });
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("Error fetching product:", error);
-          toast.error("Failed to fetch product");
-          router.push("/dashboard/products");
-        } else {
-          console.error("Unexpected error:", error);
-          toast.error("Something went wrong");
-        }
-      }
-    }
-
-    if (id) {
-      fetchProduct();
-    }
-  }, [id, form, router]);
+  const [updateProduct] = useUpdateProductMutation();
 
   async function onSubmit(values: z.infer<typeof productSchema>) {
     try {
-      setIsLoading(true);
-      const token = localStorage.getItem("token"); // ✅ Add this
+      setIsSubmitting(true);
+      const token = localStorage.getItem("token");
       if (!token) {
-        toast.error("Not authorized, no token");
+        toast.error("Not authorized");
         router.push("/login");
         return;
       }
+
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("shortDescription", values.shortDescription);
@@ -317,79 +260,38 @@ export default function EditProductPage() {
       formData.append("isFeatured", values.isFeatured.toString());
       formData.append("isOnSale", values.isOnSale.toString());
 
-      if (values.salePrice) {
-        formData.append("salePrice", values.salePrice);
-      }
+      if (values.salePrice) formData.append("salePrice", values.salePrice);
+      if (values.designer) formData.append("designer", values.designer);
+      if (values.material) formData.append("material", values.material);
+      if (values.weight) formData.append("weight", values.weight);
+      if (values.dimensions) formData.append("dimensions", values.dimensions);
 
-      if (values.designer) {
-        formData.append("designer", values.designer);
-      }
-
-      if (values.material) {
-        formData.append("material", values.material);
-      }
-
-      if (values.weight) {
-        formData.append("weight", values.weight);
-      }
-
-      if (values.dimensions) {
-        formData.append("dimensions", values.dimensions);
-      }
-
-      // Filter out empty strings
-      const filteredSizes = values.sizes.filter((size) => size.trim() !== "");
-      const filteredColors = values.colors.filter(
-        (color) => color.trim() !== ""
-      );
-      const filteredFeatures = values.features.filter(
-        (feature) => feature.trim() !== ""
-      );
+      const filteredSizes = values.sizes.filter((v) => v.trim() !== "");
+      const filteredColors = values.colors.filter((v) => v.trim() !== "");
+      const filteredFeatures = values.features.filter((v) => v.trim() !== "");
 
       formData.append("sizes", JSON.stringify(filteredSizes));
       formData.append("colors", JSON.stringify(filteredColors));
       formData.append("features", JSON.stringify(filteredFeatures));
-
-      // Append existing images
       formData.append("existingImages", JSON.stringify(existingImages));
 
-      // Append new image files
       images.forEach((image) => {
         if (image.file instanceof File) {
           formData.append("images", image.file);
         }
       });
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update product");
-      }
+      await updateProduct({ id: id as string, formData }).unwrap();
 
       toast.success("Product updated successfully");
+      refetch();
       router.push("/dashboard/products");
-      router.refresh();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Error updating product:", error);
-        toast.error(error.message || "Something went wrong");
-      } else {
-        console.error("Unexpected error:", error);
-        toast.error("Something went wrong");
-      }
+    } catch (error: any) {
+      console.error("Error updating product:", error);
+      toast.error(error?.data?.message || "Something went wrong");
     } finally {
-      setIsLoading(false);
-    } 
+      setIsSubmitting(false);
+    }
   }
 
   if (!product) {
@@ -677,13 +579,8 @@ export default function EditProductPage() {
                   )}
                 />
                 {features.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => removeFeatureField(index)}
-                    className="mt-0"
-                  >
-                    Remove
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Updating..." : "Update Product"}
                   </Button>
                 )}
               </div>

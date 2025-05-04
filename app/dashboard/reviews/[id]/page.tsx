@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, ArrowLeft, Edit, Trash } from "lucide-react";
@@ -25,6 +24,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  useGetReviewByIdQuery,
+  useDeleteReviewMutation,
+} from "@/lib/api/reviewApi";
+import { useGetAllProductsQuery } from "@/lib/api/productApi";
+import Image from "next/image";
 
 const statusColors = {
   Approved: "bg-green-500",
@@ -32,68 +37,18 @@ const statusColors = {
   Rejected: "bg-red-500",
 };
 
-interface Review {
-  id: string;
-  product: string;
-  customer: string;
-  rating: number;
-  comment: string;
-  date: string;
-  status: string;
-  email?: string;
-  productId?: string;
-}
-
 export default function ReviewDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const [review, setReview] = useState<Review | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchReviewDetails() {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${params.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch review details");
-        }
-        const data = await response.json();
-        setReview(data);
-      } catch (error) {
-        console.error("Error fetching review:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    if (params.id) {
-      fetchReviewDetails();
-    }
-  }, [params.id]);
+  const { data: review, isLoading } = useGetReviewByIdQuery(
+    params.id as string
+  );
+  const { data: products = [] } = useGetAllProductsQuery();
+  const [deleteReview] = useDeleteReviewMutation();
 
   const handleDelete = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${params.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to delete review");
-      }
+      await deleteReview(params.id as string).unwrap();
       router.push("/dashboard/reviews");
     } catch (error) {
       console.error("Error deleting review:", error);
@@ -109,6 +64,12 @@ export default function ReviewDetailsPage() {
         }`}
       />
     ));
+  };
+
+  // Find product name from product ID
+  const getProductName = (productId: string) => {
+    const product = products.find((p) => p._id === productId);
+    return product ? product.name : productId;
   };
 
   if (isLoading) {
@@ -150,7 +111,9 @@ export default function ReviewDetailsPage() {
         <div className="flex space-x-2">
           <Button
             variant="outline"
-            onClick={() => router.push(`/dashboard/reviews/edit/${review.id}`)}
+            onClick={() =>
+              router.push(`/dashboard/reviews/${review._id}/edit-review`)
+            }
           >
             <Edit className="mr-2 h-4 w-4" /> Edit
           </Button>
@@ -182,42 +145,49 @@ export default function ReviewDetailsPage() {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-2xl">{review.product}</CardTitle>
-            <Badge
-              className={`${
-                statusColors[review.status as keyof typeof statusColors]
-              } text-white`}
-            >
-              {review.status}
-            </Badge>
+            <CardTitle className="text-2xl">
+              {getProductName(review.productId)}
+            </CardTitle>
           </div>
           <CardDescription>
             <div className="flex items-center space-x-2">
               <span>Rating:</span>
-              <div className="flex">{renderStars(review.rating)}</div>
+              <div className="flex">{renderStars(Number(review.rating))}</div>
             </div>
+            {review.subtext && (
+              <div className="mt-2 text-sm italic">
+                &quot;{review.subtext}&quot;
+              </div>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <h3 className="font-semibold text-lg mb-1">Customer Information</h3>
-            <p>Name: {review.customer}</p>
-            {review.email && <p>Email: {review.email}</p>}
+            <p>Name: {review.name}</p>
           </div>
           <div>
             <h3 className="font-semibold text-lg mb-1">Review Comment</h3>
-            <p className="whitespace-pre-wrap">{review.comment}</p>
+            <p className="whitespace-pre-wrap">{review.review}</p>
           </div>
-          {review.productId && (
-            <div>
-              <h3 className="font-semibold text-lg mb-1">Product ID</h3>
-              <p>{review.productId}</p>
-            </div>
+          {review.imageUrl && (
+            <img
+              src={review.imageUrl}
+              alt="Review Image"
+              className="h-40 w-auto rounded-md object-cover"
+            />
           )}
+          <div>
+            <h3 className="font-semibold text-lg mb-1">Product Information</h3>
+            <p>Product Name: {getProductName(review.productId)}</p>
+          </div>
         </CardContent>
-        <CardFooter className="border-t pt-4">
+        <CardFooter className="border-t pt-4 flex flex-col items-start">
           <p className="text-sm text-gray-500">
-            Submitted on: {review.date}
+            Submitted on: {new Date(review.createdAt).toLocaleString()}
+          </p>
+          <p className="text-sm text-gray-500">
+            Last updated: {new Date(review.updatedAt).toLocaleString()}
           </p>
         </CardFooter>
       </Card>

@@ -1,61 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BackPage } from "@/app/components/backPage/backpage";
-
-interface Order {
-  _id: string;
-  customerName: string;
-  customerEmail: string;
-  customerNumber: string;
-  customerAddress: string;
-  items: {
-    name: string;
-    quantity: number;
-    price: number;
-  }[];
-  totalAmount: number;
-  status: string;
-  createdAt: string;
-}
+import { useGetOrderQuery } from "@/lib/api/orderApi"; // ✅ RTK Query hook
 
 export default function OrderDetailsPage() {
-  const { id } = useParams();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    }
-  }, []);
+  const {
+    data: order,
+    isLoading,
+    isError,
+  } = useGetOrderQuery(id); // ✅ RTK query call
 
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
-  const fetchOrder = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}`
-      );
-      const data = await response.json();
-      setOrder(data);
-    } catch (error) {
-      console.error("Error fetching order:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getStatusColor = (status?: string) => {
+    switch ((status ?? "").toLowerCase()) {
       case "pending":
         return "bg-yellow-500";
       case "processing":
@@ -69,12 +33,12 @@ export default function OrderDetailsPage() {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return <div className="container mx-auto py-6">Loading...</div>;
   }
 
-  if (!order) {
-    return <div>Order not found</div>;
+  if (isError || !order) {
+    return <div className="container mx-auto py-6">Order not found</div>;
   }
 
   return (
@@ -114,7 +78,7 @@ export default function OrderDetailsPage() {
             <div>
               <h3 className="font-semibold mb-2">Order Items</h3>
               <div className="space-y-2">
-                {order.items.map((item, index) => (
+                {order.items?.map((item, index) => (
                   <div key={index} className="flex justify-between">
                     <span>
                       {item.name} x {item.quantity}

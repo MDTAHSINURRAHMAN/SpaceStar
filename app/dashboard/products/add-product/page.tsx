@@ -19,7 +19,14 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { BackPage } from "@/app/components/backPage/backpage";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useCreateProductMutation } from "@/lib/api/productApi";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -47,6 +54,7 @@ const productSchema = z.object({
 
 export default function AddProductPage() {
   const router = useRouter();
+  const [createProduct] = useCreateProductMutation();
   const [isLoading, setIsLoading] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [sizes, setSizes] = useState<string[]>([""]);
@@ -187,8 +195,7 @@ export default function AddProductPage() {
     try {
       setIsLoading(true);
 
-
-      const token = localStorage.getItem("token"); // ✅ Add this line
+      const token = localStorage.getItem("token");
       if (!token) {
         toast.error("Unauthorized. Please log in.");
         router.push("/login");
@@ -206,47 +213,26 @@ export default function AddProductPage() {
       formData.append("isPreOrder", values.isPreOrder.toString());
       formData.append("isFeatured", values.isFeatured.toString());
       formData.append("isOnSale", values.isOnSale.toString());
-      
+
       if (values.material) formData.append("material", values.material);
       if (values.weight) formData.append("weight", values.weight);
       if (values.dimensions) formData.append("dimensions", values.dimensions);
       if (values.salePrice) formData.append("salePrice", values.salePrice);
 
-      values.features.forEach((feature) => {
-        formData.append("features", feature);
-      });
-      
-      values.sizes.forEach((size) => {
-        formData.append("sizes", size);
-      });
-      
-      values.colors.forEach((color) => {
-        formData.append("colors", color);
-      });
-
-      values.images.forEach((image) => {
-        formData.append("images", image);
-      });
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/products`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-          body: formData,
-        }
+      values.features.forEach((feature) =>
+        formData.append("features", feature)
       );
+      values.sizes.forEach((size) => formData.append("sizes", size));
+      values.colors.forEach((color) => formData.append("colors", color));
+      values.images.forEach((image) => formData.append("images", image));
 
-      if (!response.ok) {
-        throw new Error("Failed to create product");
-      }
+      // ✅ Use RTK Query mutation
+      await createProduct(formData).unwrap();
 
       toast.success("Product created successfully");
       router.push("/dashboard/products");
     } catch (error) {
-      toast.error("Something went wrong: " + error);
+      toast.error("Something went wrong: " + (error as Error).message);
     } finally {
       setIsLoading(false);
     }
@@ -290,7 +276,10 @@ export default function AddProductPage() {
                   <FormItem>
                     <FormLabel>Short Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Brief product description" {...field} />
+                      <Input
+                        placeholder="Brief product description"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -319,8 +308,8 @@ export default function AddProductPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
@@ -460,7 +449,7 @@ export default function AddProductPage() {
           {/* Product Details */}
           <div className="bg-gray-50 p-6 rounded-lg border">
             <h3 className="text-lg font-medium mb-4">Product Details</h3>
-            
+
             {/* Long Description */}
             <FormField
               control={form.control}
@@ -469,10 +458,10 @@ export default function AddProductPage() {
                 <FormItem>
                   <FormLabel>Long Description</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Detailed product description" 
+                    <Textarea
+                      placeholder="Detailed product description"
                       className="min-h-[150px]"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -574,7 +563,7 @@ export default function AddProductPage() {
           {/* Variants */}
           <div className="bg-gray-50 p-6 rounded-lg border">
             <h3 className="text-lg font-medium mb-4">Product Variants</h3>
-            
+
             {/* Sizes */}
             <div className="space-y-4">
               <FormLabel>Sizes</FormLabel>
