@@ -38,7 +38,6 @@ export default function EditReviewPage() {
     customer: "",
     comment: "",
     subtext: "",
-    status: "Pending",
   });
 
   useEffect(() => {
@@ -48,7 +47,6 @@ export default function EditReviewPage() {
         customer: review.name || "",
         comment: review.review || "",
         subtext: review.subtext || "",
-        status: review.status || "Pending",
       });
       setRating(review.rating || 0);
       if (review.imageUrl) {
@@ -102,7 +100,6 @@ export default function EditReviewPage() {
     formPayload.append("rating", rating.toString());
     formPayload.append("review", formData.comment);
     formPayload.append("subtext", formData.subtext);
-    formPayload.append("status", formData.status);
 
     if (image) {
       formPayload.append("image", image);
@@ -112,7 +109,7 @@ export default function EditReviewPage() {
       await updateReview({ id: reviewId, formData: formPayload }).unwrap();
       toast.success("Review updated successfully");
       router.push(`/dashboard/reviews/${reviewId}`);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update review");
     }
   };
@@ -260,23 +257,6 @@ export default function EditReviewPage() {
               </div>
             )}
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
-          <Select
-            value={formData.status}
-            onValueChange={(value) => handleSelectChange("status", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="Approved">Approved</SelectItem>
-              <SelectItem value="Rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="flex justify-end space-x-2">
