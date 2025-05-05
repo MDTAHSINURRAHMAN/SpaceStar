@@ -31,6 +31,7 @@ import {
 import RequireAuth from "@/app/providers/RequireAuth";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Order } from "@/types/orders";
 
 const ORDER_STATUS_COLORS = {
   pending: "bg-yellow-500",
@@ -76,12 +77,12 @@ export default function OrdersPage() {
     router.push("/dashboard/orders/add-order");
   };
 
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = orders.filter((order: Order) => {
     const searchTerm = searchQuery.toLowerCase();
     return (
-      order.customer?.name?.toLowerCase().includes(searchTerm) ||
-      order.customer?.email?.toLowerCase().includes(searchTerm) ||
-      order.customer?.phone?.toLowerCase().includes(searchTerm) ||
+      order.customer.name.toLowerCase().includes(searchTerm) ||
+      order.customer.email.toLowerCase().includes(searchTerm) ||
+      order.customer.phone.toLowerCase().includes(searchTerm) ||
       order.status.toLowerCase().includes(searchTerm)
     );
   });
@@ -129,12 +130,12 @@ export default function OrdersPage() {
               </TableHeader>
               <TableBody>
                 {filteredOrders.length > 0 ? (
-                  filteredOrders.map((order) => (
+                  filteredOrders.map((order: Order) => (
                     <TableRow key={order._id}>
-                      <TableCell>{order.customer?.name}</TableCell>
-                      <TableCell>{order.customer?.email}</TableCell>
-                      <TableCell>{order.customer?.phone}</TableCell>
-                      <TableCell>{order.customer?.address || "N/A"}</TableCell>
+                      <TableCell>{order.customer.name}</TableCell>
+                      <TableCell>{order.customer.email}</TableCell>
+                      <TableCell>{order.customer.phone}</TableCell>
+                      <TableCell>{order.customer.address || "N/A"}</TableCell>
                       <TableCell>
                         <div className="space-y-1">
                           {order.items.map((item) => (

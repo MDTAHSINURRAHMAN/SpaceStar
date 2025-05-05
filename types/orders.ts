@@ -1,9 +1,11 @@
 export interface Order {
     _id: string;
-    customerName: string;
-    customerEmail: string;
-    customerNumber: string;
-    customerAddress: string;
+    customer: {
+      name: string;
+      email: string;
+      phone: string;
+      address: string;
+    };
     items: {
       name: string;
       quantity: number;
