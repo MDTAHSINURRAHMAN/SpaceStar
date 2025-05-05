@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateProductMutation } from "@/lib/api/productApi";
+import RequireAuth from "@/app/providers/RequireAuth";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -239,7 +240,8 @@ export default function AddProductPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <RequireAuth>
+      <div className="container mx-auto py-10">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <BackPage />
@@ -710,5 +712,6 @@ export default function AddProductPage() {
         </form>
       </Form>
     </div>
+    </RequireAuth>
   );
 }

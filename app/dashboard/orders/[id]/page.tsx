@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BackPage } from "@/app/components/backPage/backpage";
 import { useGetOrderQuery } from "@/lib/api/orderApi"; // ✅ RTK Query hook
-
+import RequireAuth from "@/app/providers/RequireAuth";
 export default function OrderDetailsPage() {
   const params = useParams();
   const id = params.id as string;
@@ -42,7 +42,8 @@ export default function OrderDetailsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <RequireAuth>
+      <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
           <BackPage />
@@ -98,5 +99,6 @@ export default function OrderDetailsPage() {
         </CardContent>
       </Card>
     </div>
+    </RequireAuth>
   );
 }

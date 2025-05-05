@@ -16,7 +16,7 @@ import { Search, Star, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useGetAllReviewsQuery } from "@/lib/api/reviewApi";
 import { useGetAllProductsQuery } from "@/lib/api/productApi";
-
+import RequireAuth from "@/app/providers/RequireAuth";
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
@@ -57,75 +57,77 @@ export default function ReviewsPage() {
   console.log("🧾 Reviews received:", reviews);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-4"
-    >
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Reviews</h2>
-        <Button onClick={() => router.push("/dashboard/reviews/add-review")}>
-          <Plus className="mr-2 h-4 w-4" /> Add Review
-        </Button>
-      </div>
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search reviews..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
-          />
+    <RequireAuth>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-4"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold tracking-tight">Reviews</h2>
+          <Button onClick={() => router.push("/dashboard/reviews/add-review")}>
+            <Plus className="mr-2 h-4 w-4" /> Add Review
+          </Button>
         </div>
-      </div>
-      <div className="rounded-md border">
-        {isLoading ? (
-          <div className="p-4 text-center">Loading...</div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Comment</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredReviews.map((review) => (
-                <TableRow key={review._id}>
-                  <TableCell className="font-medium">
-                    {productMap[review.productId] || review.productId}
-                  </TableCell>
-                  <TableCell>{review.name}</TableCell>
-                  <TableCell>
-                    <div className="flex">{renderStars(review.rating)}</div>
-                  </TableCell>
-                  <TableCell className="max-w-[200px] truncate">
-                    {review.review}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(review.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewDetails(review._id)}
-                    >
-                      View
-                    </Button>
-                  </TableCell>
+        <div className="flex items-center space-x-2">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search reviews..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+        </div>
+        <div className="rounded-md border">
+          {isLoading ? (
+            <div className="p-4 text-center">Loading...</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Comment</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </div>
-    </motion.div>
+              </TableHeader>
+              <TableBody>
+                {filteredReviews.map((review) => (
+                  <TableRow key={review._id}>
+                    <TableCell className="font-medium">
+                      {productMap[review.productId] || review.productId}
+                    </TableCell>
+                    <TableCell>{review.name}</TableCell>
+                    <TableCell>
+                      <div className="flex">{renderStars(review.rating)}</div>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate">
+                      {review.review}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewDetails(review._id)}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </motion.div>
+    </RequireAuth>
   );
 }

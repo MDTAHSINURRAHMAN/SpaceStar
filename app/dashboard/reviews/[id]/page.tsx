@@ -29,7 +29,7 @@ import {
   useDeleteReviewMutation,
 } from "@/lib/api/reviewApi";
 import { useGetAllProductsQuery } from "@/lib/api/productApi";
-import Image from "next/image";
+import RequireAuth from "@/app/providers/RequireAuth";
 
 const statusColors = {
   Approved: "bg-green-500",
@@ -92,7 +92,8 @@ export default function ReviewDetailsPage() {
   }
 
   return (
-    <motion.div
+    <RequireAuth>
+      <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -192,5 +193,6 @@ export default function ReviewDetailsPage() {
         </CardFooter>
       </Card>
     </motion.div>
+    </RequireAuth>
   );
 }

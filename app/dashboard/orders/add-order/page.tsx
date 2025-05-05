@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { BackPage } from "@/app/components/backPage/backpage";
 import { useCreateOrderMutation } from "@/lib/api/orderApi"; // ✅ Import RTK mutation
-
+import RequireAuth from "@/app/providers/RequireAuth";
 interface OrderItem {
   name: string;
   email?: string;
@@ -100,156 +100,161 @@ export default function AddOrderPage() {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <BackPage />
-          <h1 className="text-2xl font-bold">Add New Order</h1>
+    <RequireAuth>
+      <div className="container mx-auto py-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <BackPage />
+            <h1 className="text-2xl font-bold">Add New Order</h1>
+          </div>
         </div>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Add New Order</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="customerName">Customer Name</Label>
-              <Input
-                id="customerName"
-                value={formData.customerName}
-                onChange={(e) =>
-                  setFormData({ ...formData, customerName: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customerEmail">Customer Email</Label>
-              <Input
-                id="customerEmail"
-                value={formData.customerEmail}
-                onChange={(e) =>
-                  setFormData({ ...formData, customerEmail: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customerNumber">Customer Number</Label>
-              <Input
-                id="customerNumber"
-                value={formData.customerNumber}
-                onChange={(e) =>
-                  setFormData({ ...formData, customerNumber: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customerAddress">Customer Address</Label>
-              <Input
-                id="customerAddress"
-                value={formData.customerAddress}
-                onChange={(e) =>
-                  setFormData({ ...formData, customerAddress: e.target.value })
-                }
-                required
-              />
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <Label>Order Items</Label>
-                <div className="text-right font-medium">
-                  Total: ${calculateTotal()}
-                </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Add New Order</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="customerName">Customer Name</Label>
+                <Input
+                  id="customerName"
+                  value={formData.customerName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerName: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerEmail">Customer Email</Label>
+                <Input
+                  id="customerEmail"
+                  value={formData.customerEmail}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerEmail: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerNumber">Customer Number</Label>
+                <Input
+                  id="customerNumber"
+                  value={formData.customerNumber}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerNumber: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerAddress">Customer Address</Label>
+                <Input
+                  id="customerAddress"
+                  value={formData.customerAddress}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      customerAddress: e.target.value,
+                    })
+                  }
+                  required
+                />
               </div>
 
-              {formData.items.map((item, index) => (
-                <div key={index} className="p-4 border rounded-lg space-y-4">
-                  <div className="space-y-2">
-                    <Label>Item Name</Label>
-                    <Input
-                      value={item.name}
-                      onChange={(e) =>
-                        handleItemChange(index, "name", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Quantity</Label>
-                      <Input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          handleItemChange(
-                            index,
-                            "quantity",
-                            parseInt(e.target.value)
-                          )
-                        }
-                        min="1"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Price</Label>
-                      <Input
-                        type="number"
-                        value={item.price}
-                        onChange={(e) =>
-                          handleItemChange(
-                            index,
-                            "price",
-                            parseFloat(e.target.value)
-                          )
-                        }
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm font-medium">
-                      Item Total: ${(item.quantity * item.price).toFixed(2)}
-                    </div>
-                    {index > 0 && (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => removeItem(index)}
-                        size="sm"
-                      >
-                        Remove Item
-                      </Button>
-                    )}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <Label>Order Items</Label>
+                  <div className="text-right font-medium">
+                    Total: ${calculateTotal()}
                   </div>
                 </div>
-              ))}
-              <Button type="button" onClick={addItem} className="w-full">
-                Add Another Item
-              </Button>
-            </div>
 
-            <div className="flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push("/dashboard/orders")}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Creating..." : "Create Order"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                {formData.items.map((item, index) => (
+                  <div key={index} className="p-4 border rounded-lg space-y-4">
+                    <div className="space-y-2">
+                      <Label>Item Name</Label>
+                      <Input
+                        value={item.name}
+                        onChange={(e) =>
+                          handleItemChange(index, "name", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Quantity</Label>
+                        <Input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) =>
+                            handleItemChange(
+                              index,
+                              "quantity",
+                              parseInt(e.target.value)
+                            )
+                          }
+                          min="1"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Price</Label>
+                        <Input
+                          type="number"
+                          value={item.price}
+                          onChange={(e) =>
+                            handleItemChange(
+                              index,
+                              "price",
+                              parseFloat(e.target.value)
+                            )
+                          }
+                          min="0"
+                          step="0.01"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm font-medium">
+                        Item Total: ${(item.quantity * item.price).toFixed(2)}
+                      </div>
+                      {index > 0 && (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={() => removeItem(index)}
+                          size="sm"
+                        >
+                          Remove Item
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <Button type="button" onClick={addItem} className="w-full">
+                  Add Another Item
+                </Button>
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/dashboard/orders")}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Creating..." : "Create Order"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </RequireAuth>
   );
 }

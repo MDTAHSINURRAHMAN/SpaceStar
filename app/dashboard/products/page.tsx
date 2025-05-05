@@ -25,6 +25,7 @@ import {
   useGetAllProductsQuery,
   useDeleteProductMutation,
 } from "@/lib/api/productApi"; // ✅ import RTK hooks
+import RequireAuth from "@/app/providers/RequireAuth";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -47,7 +48,8 @@ export default function ProductsPage() {
   }
 
   return (
-    <ProductsPageContent>
+    <RequireAuth>
+      <ProductsPageContent>
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Products</h2>
         <Button onClick={() => router.push("/dashboard/products/add-product")}>
@@ -116,5 +118,6 @@ export default function ProductsPage() {
         </Table>
       </div>
     </ProductsPageContent>
+    </RequireAuth>
   );
 }

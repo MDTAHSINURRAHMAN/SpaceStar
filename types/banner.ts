@@ -1,7 +1,6 @@
 export interface BannerEntry {
   _id: string;
-  image: string; // S3 key (e.g. "banners/12345-banner.png")
-  createdAt?: string;
+  image: string;          // S3 key (e.g. "banners/banner-123.png")
   updatedAt?: string;
-  imageUrl?: string; // Optional signed URL returned by backend (if needed)
+  imageUrl?: string;      // Signed URL returned from backend
 }

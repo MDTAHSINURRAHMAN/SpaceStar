@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus, Trash } from "lucide-react";
 import { toast } from "sonner";
+import RequireAuth from "@/app/providers/RequireAuth";
 
 export default function AboutPage() {
   const [isEditing, setIsEditing] = useState(false);
@@ -107,7 +108,8 @@ export default function AboutPage() {
   const hasAbout = !!about;
 
   return (
-    <div className="container mx-auto p-6">
+    <RequireAuth>
+      <div className="container mx-auto p-6">
       {!hasAbout && !isEditing && (
         <Card>
           <CardHeader>
@@ -196,5 +198,6 @@ export default function AboutPage() {
         </Card>
       )}
     </div>
+    </RequireAuth>
   );
 }

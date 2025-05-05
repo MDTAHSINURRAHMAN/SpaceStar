@@ -21,7 +21,16 @@ export const loginApi = createApi({
         method: "POST",
       }),
     }),
+    getMe: builder.query<LoginResponse["user"], void>({
+      query: () => ({
+        url: "/auth/me",
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useLogoutMutation } = loginApi;
+export const {
+  useLoginMutation,
+  useLogoutMutation,
+  useGetMeQuery, // 👈 export this for use in RequireAuth
+} = loginApi;

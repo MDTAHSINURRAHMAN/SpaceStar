@@ -29,6 +29,7 @@ import {
   useDeleteOrderMutation,
 } from "@/lib/api/orderApi"; // adjust path if needed
 import { useState } from "react";
+import RequireAuth from "@/app/providers/RequireAuth";
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -68,122 +69,124 @@ export default function OrdersPage() {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Orders</h1>
-        <Button onClick={() => router.push("/dashboard/orders/add-order")}>
-          Add New Order
-        </Button>
-      </div>
+    <RequireAuth>
+      <div className="container mx-auto py-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Orders</h1>
+          <Button onClick={() => router.push("/dashboard/orders/add-order")}>
+            Add New Order
+          </Button>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Orders</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Number</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.length > 0 ? (
-                orders.map((order) => (
-                  <TableRow key={order._id}>
-                    <TableCell>{order.customerName}</TableCell>
-                    <TableCell>{order.customerEmail}</TableCell>
-                    <TableCell>{order.customerNumber}</TableCell>
-                    <TableCell>{order.customerAddress || "N/A"}</TableCell>
-                    <TableCell>
-                      {order.items.map((item) => (
-                        <div key={item.name}>
-                          {item.name} x {item.quantity}
+        <Card>
+          <CardHeader>
+            <CardTitle>All Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Number</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead>Items</TableHead>
+                  <TableHead>Total Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.length > 0 ? (
+                  orders.map((order) => (
+                    <TableRow key={order._id}>
+                      <TableCell>{order.customerName}</TableCell>
+                      <TableCell>{order.customerEmail}</TableCell>
+                      <TableCell>{order.customerNumber}</TableCell>
+                      <TableCell>{order.customerAddress || "N/A"}</TableCell>
+                      <TableCell>
+                        {order.items.map((item) => (
+                          <div key={item.name}>
+                            {item.name} x {item.quantity}
+                          </div>
+                        ))}
+                      </TableCell>
+                      <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(order.status)}>
+                          {order.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              router.push(`/dashboard/orders/${order._id}`)
+                            }
+                          >
+                            View
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              router.push(
+                                `/dashboard/orders/${order._id}/edit-order`
+                              )
+                            }
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setDeleteOrderId(order._id)}
+                          >
+                            Delete
+                          </Button>
                         </div>
-                      ))}
-                    </TableCell>
-                    <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(order.status)}>
-                        {order.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            router.push(`/dashboard/orders/${order._id}`)
-                          }
-                        >
-                          View
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            router.push(
-                              `/dashboard/orders/${order._id}/edit-order`
-                            )
-                          }
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => setDeleteOrderId(order._id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-4">
+                      No orders found
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center py-4">
-                    No orders found
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-      <AlertDialog
-        open={!!deleteOrderId}
-        onOpenChange={() => setDeleteOrderId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              order.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteOrder}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        <AlertDialog
+          open={!!deleteOrderId}
+          onOpenChange={() => setDeleteOrderId(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                order.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteOrder}>
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </RequireAuth>
   );
 }

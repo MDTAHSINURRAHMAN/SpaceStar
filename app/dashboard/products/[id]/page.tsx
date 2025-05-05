@@ -9,7 +9,7 @@ import Image from "next/image";
 import { Edit } from "lucide-react";
 import { BackPage } from "@/app/components/backPage/backpage";
 import { useGetProductQuery } from "@/lib/api/productApi"; // ✅ import RTK hook
-
+import RequireAuth from "@/app/providers/RequireAuth";
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -46,7 +46,8 @@ export default function ProductDetailsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <RequireAuth>
+      <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
           <BackPage />
@@ -224,5 +225,6 @@ export default function ProductDetailsPage() {
         </Card>
       </div>
     </div>
+    </RequireAuth>
   );
 }

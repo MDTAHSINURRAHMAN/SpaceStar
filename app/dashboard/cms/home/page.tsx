@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import RequireAuth from "@/app/providers/RequireAuth";
 
 export default function HomePage() {
   const [newText, setNewText] = useState("");
@@ -80,7 +81,8 @@ export default function HomePage() {
   const singleText = hasText ? texts[0] : null;
 
   return (
-    <div className="container mx-auto p-6">
+    <RequireAuth>
+      <div className="container mx-auto p-6">
       {!hasText && (
         <Card className="mb-6">
           <CardHeader>
@@ -150,5 +152,6 @@ export default function HomePage() {
         </Card>
       )}
     </div>
+    </RequireAuth>
   );
 }

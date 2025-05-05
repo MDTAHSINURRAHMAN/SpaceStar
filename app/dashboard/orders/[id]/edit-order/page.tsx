@@ -14,10 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import {
-  useGetOrderQuery,
-  useUpdateOrderMutation,
-} from "@/lib/api/orderApi"; // ✅ Import RTK hooks
+import { useGetOrderQuery, useUpdateOrderMutation } from "@/lib/api/orderApi"; // ✅ Import RTK hooks
+import RequireAuth from "@/app/providers/RequireAuth";
 
 interface OrderItem {
   name: string;
@@ -86,7 +84,8 @@ export default function EditOrderPage() {
   if (isError || !order) return <div>Order not found</div>;
 
   return (
-    <div className="container mx-auto py-6">
+    <RequireAuth>
+      <div className="container mx-auto py-6">
       <Card>
         <CardHeader>
           <CardTitle>Edit Order</CardTitle>
@@ -204,5 +203,6 @@ export default function EditOrderPage() {
         </CardContent>
       </Card>
     </div>
+    </RequireAuth>
   );
 }

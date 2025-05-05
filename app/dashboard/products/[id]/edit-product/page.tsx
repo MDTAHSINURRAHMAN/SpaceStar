@@ -24,7 +24,7 @@ import {
   useGetProductQuery,
   useUpdateProductMutation,
 } from "@/lib/api/productApi";
-
+import RequireAuth from "@/app/providers/RequireAuth";
 interface ProductImage {
   url: string;
   file?: File;
@@ -303,7 +303,8 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <RequireAuth>
+      <div className="container mx-auto py-10">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <BackPage />
@@ -758,5 +759,6 @@ export default function EditProductPage() {
         </form>
       </Form>
     </div>
+    </RequireAuth>
   );
 }

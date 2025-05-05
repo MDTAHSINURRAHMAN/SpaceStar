@@ -2,22 +2,26 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useLoginMutation } from "@/lib/api/loginApi"; // ✅ RTK hook
+import { useLoginMutation } from "@/lib/api/loginApi";
 
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
-
-  const [login, { isLoading }] = useLoginMutation(); // ✅ RTK mutation hook
+  const [login, { isLoading }] = useLoginMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await login(form).unwrap(); // ✅ call RTK mutation
-      localStorage.setItem("token", response.token);
-      router.push("/dashboard");
+      await login(form).unwrap();
+      // ✅ Navigate to dashboard
+      router.replace("/dashboard/banner");
+
+      // ✅ Wait a moment, then reload so JWT cookie is included in new fetches
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err: any) {
       console.error("Login failed:", err);
       setError(err?.data?.message || "Login failed");

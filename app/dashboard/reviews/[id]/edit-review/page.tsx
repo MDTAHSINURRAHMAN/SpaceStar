@@ -18,6 +18,7 @@ import { ArrowLeft, Star, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useGetAllProductsQuery } from "@/lib/api/productApi";
 import { useGetReviewByIdQuery, useUpdateReviewMutation } from "@/lib/api/reviewApi";
+import RequireAuth from "@/app/providers/RequireAuth";
 
 export default function EditReviewPage() {
   const params = useParams();
@@ -150,7 +151,8 @@ export default function EditReviewPage() {
   }
 
   return (
-    <motion.div
+    <RequireAuth>
+      <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
@@ -291,5 +293,6 @@ export default function EditReviewPage() {
         </div>
       </form>
     </motion.div>
+    </RequireAuth>
   );
 }

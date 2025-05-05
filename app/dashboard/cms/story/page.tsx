@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus, Trash } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
-
+import RequireAuth from "@/app/providers/RequireAuth";
 export default function StoryPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -149,7 +149,8 @@ export default function StoryPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <RequireAuth>
+      <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Story Management</h1>
         <Button onClick={() => setIsCreating(!isCreating)}>
@@ -380,5 +381,6 @@ export default function StoryPage() {
         </div>
       )}
     </div>
+    </RequireAuth>
   );
 }
