@@ -104,7 +104,7 @@ export default function AddProductPage() {
     defaultValues: DEFAULT_FORM_VALUES,
   });
 
-  const handleImageChange = (e, index) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const files = e.target.files;
     if (!files?.length) return;
     const newImages = [...images];
@@ -118,14 +118,14 @@ export default function AddProductPage() {
     setImages([...images, new File([], "")]);
   };
 
-  const removeImageField = (index) => {
+  const removeImageField = (index: number) => {
     if (images.length <= 1) return;
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
     form.setValue("images", newImages);
   };
 
-  const handleFeatureChange = (value, index) => {
+  const handleFeatureChange = (value: string, index: number) => {
     const updated = [...features];
     updated[index] = value;
     setFeatures(updated);
@@ -138,14 +138,14 @@ export default function AddProductPage() {
     form.setValue("features", updated);
   };
 
-  const removeFeatureField = (index) => {
+  const removeFeatureField = (index: number) => {
     if (features.length <= 1) return;
     const updated = features.filter((_, i) => i !== index);
     setFeatures(updated);
     form.setValue("features", updated);
   };
 
-  const handleSizeChange = (value, index) => {
+  const handleSizeChange = (value: string, index: number) => {
     const updated = [...sizes];
     updated[index] = value;
     setSizes(updated);
@@ -158,14 +158,14 @@ export default function AddProductPage() {
     form.setValue("sizes", updated);
   };
 
-  const removeSizeField = (index) => {
+  const removeSizeField = (index: number) => {
     if (sizes.length <= 1) return;
     const updated = sizes.filter((_, i) => i !== index);
     setSizes(updated);
     form.setValue("sizes", updated);
   };
 
-  const handleColorChange = (value, index) => {
+  const handleColorChange = (value: string, index: number) => {
     const updated = [...colors];
     updated[index] = value;
     setColors(updated);
@@ -178,14 +178,14 @@ export default function AddProductPage() {
     form.setValue("colors", updated);
   };
 
-  const removeColorField = (index) => {
+  const removeColorField = (index: number) => {
     if (colors.length <= 1) return;
     const updated = colors.filter((_, i) => i !== index);
     setColors(updated);
     form.setValue("colors", updated);
   };
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values: z.infer<typeof productSchema>) => {
     try {
       setIsLoading(true);
       const formData = new FormData();
