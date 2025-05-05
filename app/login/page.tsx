@@ -6,7 +6,7 @@ import { useLoginMutation } from "@/lib/api/loginApi";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ username: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [login, { isLoading }] = useLoginMutation();
 
@@ -15,16 +15,15 @@ export default function LoginPage() {
 
     try {
       await login(form).unwrap();
-      // ✅ Navigate to dashboard
       router.replace("/dashboard/banner");
-
-      // ✅ Wait a moment, then reload so JWT cookie is included in new fetches
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login failed:", err);
-      setError(err?.data?.message || "Login failed");
+      if (err && typeof err === 'object' && 'data' in err) {
+        const errorData = err as { data?: { message?: string } };
+        setError(errorData.data?.message || "Login failed");
+      } else {
+        setError("Login failed");
+      }
     }
   };
 
@@ -33,11 +32,12 @@ export default function LoginPage() {
       <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
       <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm">
         <input
-          type="text"
-          placeholder="Username"
-          value={form.username}
-          onChange={(e) => setForm({ ...form, username: e.target.value })}
+          type="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
           className="border px-4 py-2 w-full"
+          required
         />
         <input
           type="password"
@@ -45,11 +45,12 @@ export default function LoginPage() {
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           className="border px-4 py-2 w-full"
+          required
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           type="submit"
-          className="bg-black text-white px-4 py-2 w-full"
+          className="bg-black text-white px-4 py-2 w-full disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isLoading}
         >
           {isLoading ? "Logging in..." : "Login"}
