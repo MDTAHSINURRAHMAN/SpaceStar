@@ -207,7 +207,7 @@ export default function AddProductPage() {
       await createProduct(formData).unwrap();
       toast.success("Product created successfully");
       router.push("/dashboard/products");
-    } catch (error) {
+    } catch (error: any) {
       toast.error(
         "Error creating product: " + (error?.message || "Unknown error")
       );
