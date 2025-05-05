@@ -88,9 +88,15 @@ export default function EditOrderPage() {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
-  const handleCustomerInfoChange = (field: string, value: string) => {
+  const handleCustomerInfoChange = (field: keyof typeof order.customer, value: string) => {
     if (!order) return;
-    setOrder({ ...order, [field]: value });
+    setOrder({
+      ...order,
+      customer: {
+        ...order.customer,
+        [field]: value
+      }
+    });
   };
 
   if (isLoading) {
@@ -133,8 +139,8 @@ export default function EditOrderPage() {
                   <Label htmlFor="customerName">Customer Name</Label>
                   <Input
                     id="customerName"
-                    value={order.customerName}
-                    onChange={(e) => handleCustomerInfoChange("customerName", e.target.value)}
+                    value={order.customer.name}
+                    onChange={(e) => handleCustomerInfoChange("name", e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -142,24 +148,24 @@ export default function EditOrderPage() {
                   <Input
                     id="customerEmail"
                     type="email"
-                    value={order.customerEmail}
-                    onChange={(e) => handleCustomerInfoChange("customerEmail", e.target.value)}
+                    value={order.customer.email}
+                    onChange={(e) => handleCustomerInfoChange("email", e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="customerNumber">Customer Number</Label>
                   <Input
                     id="customerNumber"
-                    value={order.customerNumber}
-                    onChange={(e) => handleCustomerInfoChange("customerNumber", e.target.value)}
+                    value={order.customer.phone}
+                    onChange={(e) => handleCustomerInfoChange("phone", e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="customerAddress">Customer Address</Label>
                   <Input
                     id="customerAddress"
-                    value={order.customerAddress}
-                    onChange={(e) => handleCustomerInfoChange("customerAddress", e.target.value)}
+                    value={order.customer.address}
+                    onChange={(e) => handleCustomerInfoChange("address", e.target.value)}
                   />
                 </div>
               </div>
