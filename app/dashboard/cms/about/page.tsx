@@ -7,10 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Trash, List } from "lucide-react";
+import { Plus, Trash, List } from "lucide-react";
 import { toast } from "sonner";
 import RequireAuth from "@/app/providers/RequireAuth";
-
+import Loader from "@/app/components/Loader"; 
 const INITIAL_FORM_STATE: AboutContent = {
   brandMessage: "",
   missionPoints: ["", "", ""],
@@ -105,7 +105,7 @@ export default function AboutPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-6 h-6 animate-spin" />
+        <Loader />
       </div>
     );
   }

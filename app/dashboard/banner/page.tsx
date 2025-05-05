@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RequireAuth from "@/app/providers/RequireAuth";
-
+import Loader from "@/app/components/Loader";
 export default function BannerPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -82,7 +82,7 @@ export default function BannerPage() {
   if (isLoading) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <div className="text-muted-foreground">Loading banner...</div>
+        <Loader />
       </div>
     );
   }

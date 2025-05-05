@@ -27,7 +27,7 @@ import {
   useDeleteProductMutation,
 } from "@/lib/api/productApi";
 import RequireAuth from "@/app/providers/RequireAuth";
-
+import Loader from "@/app/components/Loader";
 export default function ProductsPage() {
   const router = useRouter();
   const { data: products = [], isLoading } = useGetAllProductsQuery();
@@ -45,7 +45,7 @@ export default function ProductsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        <Loader />
       </div>
     );
   }

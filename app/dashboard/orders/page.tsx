@@ -32,7 +32,7 @@ import RequireAuth from "@/app/providers/RequireAuth";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Order } from "@/types/orders";
-
+import Loader from "@/app/components/Loader";
 const ORDER_STATUS_COLORS = {
   pending: "bg-yellow-500",
   processing: "bg-blue-500", 
@@ -88,7 +88,9 @@ export default function OrdersPage() {
   });
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">
+      <Loader />
+    </div>;
   }
 
   return (

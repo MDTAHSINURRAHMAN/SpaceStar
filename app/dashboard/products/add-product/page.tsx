@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { useCreateProductMutation } from "@/lib/api/productApi";
 import RequireAuth from "@/app/providers/RequireAuth";
-
+import Loader from "@/app/components/Loader";
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   shortDescription: z.string().min(1, "Short description is required"),
@@ -215,6 +215,14 @@ export default function AddProductPage() {
       setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <RequireAuth>

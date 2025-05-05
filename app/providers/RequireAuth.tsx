@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGetMeQuery } from "@/lib/api/loginApi";
-
+import Loader from "@/app/components/Loader";
 interface Props {
   children: React.ReactNode;
 }
@@ -19,7 +19,7 @@ export default function RequireAuth({ children }: Props) {
     }
   }, [isLoading, error, router]);
 
-  if (isLoading) return <div className="p-4 text-gray-700">Checking authentication...</div>;
+  if (isLoading) return <div className="p-4 text-gray-700"><Loader /></div>;
 
   return <>{children}</>;
 }

@@ -10,10 +10,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import RequireAuth from "@/app/providers/RequireAuth";
-
+import Loader from "@/app/components/Loader";
 interface TextFormProps {
   text: string;
   onChange: (value: string) => void;
@@ -90,7 +89,7 @@ export default function HomePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader />
       </div>
     );
   }

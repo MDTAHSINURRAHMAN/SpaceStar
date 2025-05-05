@@ -25,6 +25,7 @@ import {
   useUpdateProductMutation,
 } from "@/lib/api/productApi";
 import RequireAuth from "@/app/providers/RequireAuth";
+import Loader from "@/app/components/Loader";
 interface ProductImage {
   url: string;
   file?: File;
@@ -297,7 +298,7 @@ export default function EditProductPage() {
   if (!product) {
     return (
       <div className="flex justify-center items-center h-screen">
-        Loading product data...
+        <Loader />
       </div>
     );
   }

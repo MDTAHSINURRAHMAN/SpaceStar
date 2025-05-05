@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useGetAllProductsQuery } from "@/lib/api/productApi";
 import { useCreateReviewMutation } from "@/lib/api/reviewApi";
 import RequireAuth from "@/app/providers/RequireAuth";
-
+import Loader from "@/app/components/Loader";
 export default function AddReviewPage() {
   const router = useRouter();
   const [rating, setRating] = useState(0);
@@ -115,6 +115,13 @@ export default function AddReviewPage() {
     ));
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
   return (
     <RequireAuth>
       <motion.div

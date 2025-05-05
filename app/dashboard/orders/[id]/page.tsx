@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { BackPage } from "@/app/components/backPage/backpage";
 import { useGetOrderQuery } from "@/lib/api/orderApi";
 import RequireAuth from "@/app/providers/RequireAuth";
-
+import Loader from "@/app/components/Loader";
 export default function OrderDetailsPage() {
   const params = useParams();
   const id = params.id as string;
@@ -35,7 +35,9 @@ export default function OrderDetailsPage() {
   };
 
   if (isLoading) {
-    return <div className="container mx-auto py-6">Loading...</div>;
+    return <div className="container mx-auto py-6">
+      <Loader />
+    </div>;
   }
 
   if (isError || !order) {

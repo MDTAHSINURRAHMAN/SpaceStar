@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import Loader from "@/app/components/Loader";
 interface OrderItem {
   name: string;
   quantity: number;
@@ -136,6 +136,14 @@ export default function AddOrderPage() {
       toast.error("Failed to create order");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <RequireAuth>

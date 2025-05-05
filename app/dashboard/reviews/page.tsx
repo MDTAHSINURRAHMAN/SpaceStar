@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useGetAllReviewsQuery } from "@/lib/api/reviewApi";
 import { useGetAllProductsQuery } from "@/lib/api/productApi";
 import RequireAuth from "@/app/providers/RequireAuth";
+import Loader from "@/app/components/Loader";
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
@@ -54,6 +55,14 @@ export default function ReviewsPage() {
     router.push(`/dashboard/reviews/${reviewId}`);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
+
   console.log("🧾 Reviews received:", reviews);
 
   return (
@@ -83,7 +92,9 @@ export default function ReviewsPage() {
         </div>
         <div className="rounded-md border">
           {isLoading ? (
-            <div className="p-4 text-center">Loading...</div>
+            <div className="p-4 text-center">
+              <Loader />
+            </div>
           ) : (
             <Table>
               <TableHeader>
