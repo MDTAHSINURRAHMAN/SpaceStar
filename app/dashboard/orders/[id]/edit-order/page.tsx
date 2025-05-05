@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { useGetOrderQuery, useUpdateOrderMutation } from "@/lib/api/orderApi";
 import RequireAuth from "@/app/providers/RequireAuth";
 import { BackPage } from "@/app/components/backPage/backpage";
+import { Order } from "@/types/orders";
 
 interface OrderItem {
   name: string;
@@ -42,7 +43,7 @@ export default function EditOrderPage() {
     isError,
   } = useGetOrderQuery(id as string);
 
-  const [order, setOrder] = useState(orderData || null);
+  const [order, setOrder] = useState<Order | null>(orderData || null);
 
   useEffect(() => {
     if (orderData) setOrder(orderData);
@@ -88,7 +89,7 @@ export default function EditOrderPage() {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
-  const handleCustomerInfoChange = (field: keyof typeof order.customer, value: string) => {
+  const handleCustomerInfoChange = (field: keyof Order["customer"], value: string) => {
     if (!order) return;
     setOrder({
       ...order,
