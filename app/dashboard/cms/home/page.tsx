@@ -7,13 +7,40 @@ import {
   useUpdateTextMutation,
   useDeleteTextMutation,
 } from "@/lib/api/homeApi";
-import { TextEntry } from "@/types/home";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import RequireAuth from "@/app/providers/RequireAuth";
+
+interface TextFormProps {
+  text: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  onCancel?: () => void;
+  submitLabel: string;
+  showCancel?: boolean;
+}
+
+const TextForm = ({ text, onChange, onSubmit, onCancel, submitLabel, showCancel }: TextFormProps) => (
+  <div className="flex flex-col gap-4">
+    <Input
+      value={text}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="Enter promotional text..."
+      className="w-full"
+    />
+    <div className="flex gap-2">
+      <Button onClick={onSubmit}>{submitLabel}</Button>
+      {showCancel && (
+        <Button variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+      )}
+    </div>
+  </div>
+);
 
 export default function HomePage() {
   const [newText, setNewText] = useState("");
@@ -76,82 +103,72 @@ export default function HomePage() {
     );
   }
 
-  // Check if we have any text entries
   const hasText = texts && texts.length > 0;
   const singleText = hasText ? texts[0] : null;
 
   return (
     <RequireAuth>
       <div className="container mx-auto p-6">
-      {!hasText && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Add Home Text</CardTitle>
-          </CardHeader>
-          <CardContent className="flex gap-4">
-            <Input
-              value={newText}
-              onChange={(e) => setNewText(e.target.value)}
-              placeholder="Enter text for homepage..."
-              className="flex-1"
-            />
-            <Button onClick={handleCreate}>Add Text</Button>
-          </CardContent>
-        </Card>
-      )}
+        {!hasText && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Add Promotional Text</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TextForm
+                text={newText}
+                onChange={setNewText}
+                onSubmit={handleCreate}
+                submitLabel="Add Text"
+              />
+            </CardContent>
+          </Card>
+        )}
 
-      {singleText && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Home Text</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isEditing ? (
-              <div className="flex flex-col gap-4">
-                <Input
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  className="w-full"
+        {singleText && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Promotional Text</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isEditing ? (
+                <TextForm
+                  text={editText}
+                  onChange={setEditText}
+                  onSubmit={() => handleUpdate(singleText._id)}
+                  onCancel={() => {
+                    setIsEditing(false);
+                    setEditText("");
+                  }}
+                  submitLabel="Save"
+                  showCancel
                 />
-                <div className="flex gap-2">
-                  <Button onClick={() => handleUpdate(singleText._id)}>Save</Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setEditText("");
-                    }}
-                  >
-                    Cancel
-                  </Button>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  <p className="text-lg">{singleText.text}</p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditing(true);
+                        setEditText(singleText.text);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDelete(singleText._id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                <p className="text-lg">{singleText.text}</p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setIsEditing(true);
-                      setEditText(singleText.text);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleDelete(singleText._id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-    </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </RequireAuth>
   );
 }

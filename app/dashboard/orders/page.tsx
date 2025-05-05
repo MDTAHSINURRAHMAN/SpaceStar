@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,19 +24,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
 import {
   useGetAllOrdersQuery,
   useDeleteOrderMutation,
-} from "@/lib/api/orderApi"; // adjust path if needed
-import { useState } from "react";
+} from "@/lib/api/orderApi";
 import RequireAuth from "@/app/providers/RequireAuth";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+
+const ORDER_STATUS_COLORS = {
+  pending: "bg-yellow-500",
+  processing: "bg-blue-500", 
+  completed: "bg-green-500",
+  cancelled: "bg-red-500",
+} as const;
 
 export default function OrdersPage() {
   const router = useRouter();
   const { data: orders = [], isLoading } = useGetAllOrdersQuery();
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
   const [deleteOrder] = useDeleteOrderMutation();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleDeleteOrder = async () => {
     if (!deleteOrderId) return;
@@ -51,31 +60,52 @@ export default function OrdersPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return "bg-yellow-500";
-      case "processing":
-        return "bg-blue-500";
-      case "completed":
-        return "bg-green-500";
-      case "cancelled":
-        return "bg-red-500";
-      default:
-        return "bg-gray-500";
-    }
+  const getStatusColor = (status: string): string => {
+    return ORDER_STATUS_COLORS[status.toLowerCase() as keyof typeof ORDER_STATUS_COLORS] || "bg-gray-500";
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  const handleViewOrder = (orderId: string) => {
+    router.push(`/dashboard/orders/${orderId}`);
+  };
+
+  const handleEditOrder = (orderId: string) => {
+    router.push(`/dashboard/orders/${orderId}/edit-order`);
+  };
+
+  const handleAddOrder = () => {
+    router.push("/dashboard/orders/add-order");
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      order.customer?.name?.toLowerCase().includes(searchTerm) ||
+      order.customer?.email?.toLowerCase().includes(searchTerm) ||
+      order.customer?.phone?.toLowerCase().includes(searchTerm) ||
+      order.status.toLowerCase().includes(searchTerm)
+    );
+  });
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
 
   return (
     <RequireAuth>
-      <div className="container mx-auto py-6">
-        <div className="flex justify-between items-center mb-6">
+      <div className="container mx-auto py-6 space-y-6">
+        <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Orders</h1>
-          <Button onClick={() => router.push("/dashboard/orders/add-order")}>
-            Add New Order
-          </Button>
+          <Button onClick={handleAddOrder}>Add New Order</Button>
+        </div>
+
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search orders..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
 
         <Card>
@@ -98,19 +128,21 @@ export default function OrdersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.length > 0 ? (
-                  orders.map((order) => (
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
                     <TableRow key={order._id}>
-                      <TableCell>{order.customerName}</TableCell>
-                      <TableCell>{order.customerEmail}</TableCell>
-                      <TableCell>{order.customerNumber}</TableCell>
-                      <TableCell>{order.customerAddress || "N/A"}</TableCell>
+                      <TableCell>{order.customer?.name}</TableCell>
+                      <TableCell>{order.customer?.email}</TableCell>
+                      <TableCell>{order.customer?.phone}</TableCell>
+                      <TableCell>{order.customer?.address || "N/A"}</TableCell>
                       <TableCell>
-                        {order.items.map((item) => (
-                          <div key={item.name}>
-                            {item.name} x {item.quantity}
-                          </div>
-                        ))}
+                        <div className="space-y-1">
+                          {order.items.map((item) => (
+                            <div key={item.name} className="text-sm">
+                              {item.name} x {item.quantity}
+                            </div>
+                          ))}
+                        </div>
                       </TableCell>
                       <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
                       <TableCell>
@@ -122,24 +154,18 @@ export default function OrdersPage() {
                         {new Date(order.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
-                        <div className="flex space-x-2">
+                        <div className="flex gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              router.push(`/dashboard/orders/${order._id}`)
-                            }
+                            onClick={() => handleViewOrder(order._id)}
                           >
                             View
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              router.push(
-                                `/dashboard/orders/${order._id}/edit-order`
-                              )
-                            }
+                            onClick={() => handleEditOrder(order._id)}
                           >
                             Edit
                           </Button>
@@ -156,7 +182,7 @@ export default function OrdersPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-4">
+                    <TableCell colSpan={9} className="text-center py-8">
                       No orders found
                     </TableCell>
                   </TableRow>
@@ -174,8 +200,7 @@ export default function OrdersPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                order.
+                This action cannot be undone. This will permanently delete the order.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

@@ -305,76 +305,38 @@ export default function EditProductPage() {
   return (
     <RequireAuth>
       <div className="container mx-auto py-10">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <BackPage />
-          <h2 className="text-3xl font-bold tracking-tight">Edit Product</h2>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <BackPage />
+            <h2 className="text-3xl font-bold tracking-tight">Edit Product</h2>
+          </div>
         </div>
-      </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Product name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="shortDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Short Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Brief product description"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="longDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Long Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Detailed product description"
-                    {...field}
-                    rows={5}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="price"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
+                    <Input placeholder="Product name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="shortDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Short Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Brief product description"
                       {...field}
                     />
                   </FormControl>
@@ -385,380 +347,418 @@ export default function EditProductPage() {
 
             <FormField
               control={form.control}
-              name="stock"
+              name="longDescription"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Stock</FormLabel>
+                  <FormLabel>Long Description</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="0" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <FormControl>
-                  <Input placeholder="Product category" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="designer"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Designer</FormLabel>
-                <FormControl>
-                  <Input placeholder="Product designer" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-3 gap-4">
-            <FormField
-              control={form.control}
-              name="material"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Material</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Product material" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="weight"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Weight</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Product weight" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="dimensions"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dimensions</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Product dimensions" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <FormField
-              control={form.control}
-              name="isPreOrder"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Pre-order</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Mark this product as available for pre-order
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="isFeatured"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Featured</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Mark this product as featured
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="isOnSale"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>On Sale</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Mark this product as on sale
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {form.watch("isOnSale") && (
-            <FormField
-              control={form.control}
-              name="salePrice"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sale Price</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
+                    <Textarea
+                      placeholder="Detailed product description"
                       {...field}
+                      rows={5}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          )}
 
-          {/* Features */}
-          <div className="space-y-4">
-            <FormLabel>Features</FormLabel>
-            {features.map((feature, index) => (
-              <div key={index} className="flex gap-2">
-                <FormField
-                  control={form.control}
-                  name={`features.${index}`}
-                  render={() => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input
-                          placeholder="Enter product feature"
-                          value={feature}
-                          onChange={(e) =>
-                            handleFeatureChange(e.target.value, index)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {features.length > 1 && (
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="stock"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stock</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="0" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Product category" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="designer"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Designer</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Product designer" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="material"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Material</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Product material" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="weight"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Weight</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Product weight" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dimensions"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dimensions</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Product dimensions" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="isPreOrder"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Pre-order</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Mark this product as available for pre-order
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isFeatured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Featured</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Mark this product as featured
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isOnSale"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>On Sale</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Mark this product as on sale
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {form.watch("isOnSale") && (
+              <FormField
+                control={form.control}
+                name="salePrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sale Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Features */}
+            <div className="space-y-4">
+              <FormLabel>Features</FormLabel>
+              {features.map((feature, index) => (
+                <div key={index} className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name={`features.${index}`}
+                    render={() => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            placeholder="Enter product feature"
+                            value={feature}
+                            onChange={(e) =>
+                              handleFeatureChange(e.target.value, index)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* {features.length > 1 && (
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? "Updating..." : "Update Product"}
                   </Button>
-                )}
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addFeatureField}
-              className="mt-2"
-            >
-              Add Another Feature
-            </Button>
-          </div>
-
-          {/* Image Upload */}
-          <div className="space-y-4">
-            <FormLabel>Product Images (up to 5)</FormLabel>
-            {existingImages.length > 0 && (
-              <div className="grid grid-cols-5 gap-2 mb-4">
-                {existingImages.map((img, idx) => (
-                  <div key={idx} className="relative">
-                    <img
-                      src={img}
-                      alt={`Product image ${idx + 1}`}
-                      className="h-24 w-24 object-cover rounded-md"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                      onClick={() => removeExistingImage(idx)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-            {images.map((_, index) => (
-              <div key={index} className="flex gap-2">
-                <FormField
-                  control={form.control}
-                  name={`images.${index}`}
-                  render={() => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageChange(e, index)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {images.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => removeImageField(index)}
-                    className="mt-0"
-                  >
-                    Remove
-                  </Button>
-                )}
-              </div>
-            ))}
-            {images.length + existingImages.length < 5 && (
+                )} */}
+                </div>
+              ))}
               <Button
                 type="button"
                 variant="outline"
-                onClick={addImageField}
+                onClick={addFeatureField}
                 className="mt-2"
               >
-                Add Another Image
+                Add Another Feature
               </Button>
-            )}
-          </div>
+            </div>
 
-          {/* Sizes */}
-          <div className="space-y-4">
-            <FormLabel>Sizes</FormLabel>
-            {sizes.map((size, index) => (
-              <div key={index} className="flex gap-2">
-                <FormField
-                  control={form.control}
-                  name={`sizes.${index}`}
-                  render={() => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input
-                          placeholder="Enter size (e.g., S, M, L)"
-                          value={size}
-                          onChange={(e) =>
-                            handleSizeChange(e.target.value, index)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+            {/* Image Upload */}
+            <div className="space-y-4">
+              <FormLabel>Product Images (up to 5)</FormLabel>
+              {existingImages.length > 0 && (
+                <div className="grid grid-cols-5 gap-2 mb-4">
+                  {existingImages.map((img, idx) => (
+                    <div key={idx} className="relative">
+                      <img
+                        src={img}
+                        alt={`Product image ${idx + 1}`}
+                        className="h-24 w-24 object-cover rounded-md"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                        onClick={() => removeExistingImage(idx)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {images.map((_, index) => (
+                <div key={index} className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name={`images.${index}`}
+                    render={() => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageChange(e, index)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {images.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeImageField(index)}
+                      className="mt-0"
+                    >
+                      Remove
+                    </Button>
                   )}
-                />
-                {sizes.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => removeSizeField(index)}
-                    className="mt-0"
-                  >
-                    Remove
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addSizeField}
-              className="mt-2"
-            >
-              Add Another Size
-            </Button>
-          </div>
+                </div>
+              ))}
+              {images.length + existingImages.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addImageField}
+                  className="mt-2"
+                >
+                  Add Another Image
+                </Button>
+              )}
+            </div>
 
-          {/* Colors */}
-          <div className="space-y-4">
-            <FormLabel>Colors</FormLabel>
-            {colors.map((color, index) => (
-              <div key={index} className="flex gap-2">
-                <FormField
-                  control={form.control}
-                  name={`colors.${index}`}
-                  render={() => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input
-                          placeholder="Enter color (e.g., Red, Blue)"
-                          value={color}
-                          onChange={(e) =>
-                            handleColorChange(e.target.value, index)
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+            {/* Sizes */}
+            <div className="space-y-4">
+              <FormLabel>Sizes</FormLabel>
+              {sizes.map((size, index) => (
+                <div key={index} className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name={`sizes.${index}`}
+                    render={() => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            placeholder="Enter size (e.g., S, M, L)"
+                            value={size}
+                            onChange={(e) =>
+                              handleSizeChange(e.target.value, index)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {sizes.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeSizeField(index)}
+                      className="mt-0"
+                    >
+                      Remove
+                    </Button>
                   )}
-                />
-                {colors.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => removeColorField(index)}
-                    className="mt-0"
-                  >
-                    Remove
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addColorField}
-              className="mt-2"
-            >
-              Add Another Color
-            </Button>
-          </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addSizeField}
+                className="mt-2"
+              >
+                Add Another Size
+              </Button>
+            </div>
 
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Updating..." : "Update Product"}
-          </Button>
-        </form>
-      </Form>
-    </div>
+            {/* Colors */}
+            <div className="space-y-4">
+              <FormLabel>Colors</FormLabel>
+              {colors.map((color, index) => (
+                <div key={index} className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name={`colors.${index}`}
+                    render={() => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            placeholder="Enter color (e.g., Red, Blue)"
+                            value={color}
+                            onChange={(e) =>
+                              handleColorChange(e.target.value, index)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {colors.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeColorField(index)}
+                      className="mt-0"
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addColorField}
+                className="mt-2"
+              >
+                Add Another Color
+              </Button>
+            </div>
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Updating..." : "Update Product"}
+            </Button> 
+          </form>
+        </Form>
+      </div>
     </RequireAuth>
   );
 }

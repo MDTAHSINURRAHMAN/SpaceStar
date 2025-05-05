@@ -26,6 +26,7 @@ export const reviewApi = createApi({
           method: "POST",
           body: formData,
         }),
+        invalidatesTags: () => ["Review"],
       }),
     updateReview: builder.mutation<Review, { id: string; formData: FormData }>({
       query: ({ id, formData }) => ({

@@ -14,8 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useGetOrderQuery, useUpdateOrderMutation } from "@/lib/api/orderApi"; // ✅ Import RTK hooks
+import { useGetOrderQuery, useUpdateOrderMutation } from "@/lib/api/orderApi";
 import RequireAuth from "@/app/providers/RequireAuth";
+import { BackPage } from "@/app/components/backPage/backpage";
 
 interface OrderItem {
   name: string;
@@ -23,10 +24,17 @@ interface OrderItem {
   price: number;
 }
 
+const ORDER_STATUSES = {
+  PENDING: "pending",
+  PROCESSING: "processing", 
+  COMPLETED: "completed",
+  CANCELLED: "cancelled"
+} as const;
+
 export default function EditOrderPage() {
   const router = useRouter();
   const { id } = useParams();
-  const [updateOrder] = useUpdateOrderMutation();
+  const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
 
   const {
     data: orderData,
@@ -36,7 +44,6 @@ export default function EditOrderPage() {
 
   const [order, setOrder] = useState(orderData || null);
 
-  // Update local state after data fetch
   useEffect(() => {
     if (orderData) setOrder(orderData);
   }, [orderData]);
@@ -68,10 +75,7 @@ export default function EditOrderPage() {
       [field]: field === "name" ? value : Number(value),
     };
 
-    const totalAmount = newItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+    const totalAmount = calculateTotalAmount(newItems);
 
     setOrder({
       ...order,
@@ -80,129 +84,154 @@ export default function EditOrderPage() {
     });
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError || !order) return <div>Order not found</div>;
+  const calculateTotalAmount = (items: OrderItem[]) => {
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  };
+
+  const handleCustomerInfoChange = (field: string, value: string) => {
+    if (!order) return;
+    setOrder({ ...order, [field]: value });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
+
+  if (isError || !order) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h2 className="text-2xl font-semibold mb-4">Order not found</h2>
+        <Button onClick={() => router.back()}>Go Back</Button>
+      </div>
+    );
+  }
 
   return (
     <RequireAuth>
-      <div className="container mx-auto py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Order</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="customerName">Customer Name</Label>
-                <Input
-                  id="customerName"
-                  value={order.customerName}
-                  onChange={(e) =>
-                    setOrder({ ...order, customerName: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="customerEmail">Customer Email</Label>
-                <Input
-                  id="customerEmail"
-                  type="email"
-                  value={order.customerEmail}
-                  onChange={(e) =>
-                    setOrder({ ...order, customerEmail: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="customerNumber">Customer Number</Label>
-                <Input
-                  id="customerNumber"
-                  value={order.customerNumber}
-                  onChange={(e) =>
-                    setOrder({ ...order, customerNumber: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="customerAddress">Customer Address</Label>
-                <Input
-                  id="customerAddress"
-                  value={order.customerAddress}
-                  onChange={(e) =>
-                    setOrder({ ...order, customerAddress: e.target.value })
-                  }
-                />
-              </div>
-            </div>
+      <div className="container mx-auto py-10">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <BackPage />
+            <h2 className="text-3xl font-bold tracking-tight">
+              Edit Order
+            </h2>
+          </div>
+        </div>
 
-            <div className="space-y-2">
-              <Label>Order Status</Label>
-              <Select
-                value={order.status}
-                onValueChange={(value) => setOrder({ ...order, status: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-4">
-              <Label>Items</Label>
-              {order.items.map((item, index) => (
-                <div key={index} className="grid grid-cols-3 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Order Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="customerName">Customer Name</Label>
                   <Input
-                    value={item.name}
-                    onChange={(e) =>
-                      handleItemChange(index, "name", e.target.value)
-                    }
-                    placeholder="Item name"
-                  />
-                  <Input
-                    type="number"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      handleItemChange(index, "quantity", e.target.value)
-                    }
-                    placeholder="Quantity"
-                  />
-                  <Input
-                    type="number"
-                    value={item.price}
-                    onChange={(e) =>
-                      handleItemChange(index, "price", e.target.value)
-                    }
-                    placeholder="Price"
+                    id="customerName"
+                    value={order.customerName}
+                    onChange={(e) => handleCustomerInfoChange("customerName", e.target.value)}
                   />
                 </div>
-              ))}
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customerEmail">Customer Email</Label>
+                  <Input
+                    id="customerEmail"
+                    type="email"
+                    value={order.customerEmail}
+                    onChange={(e) => handleCustomerInfoChange("customerEmail", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customerNumber">Customer Number</Label>
+                  <Input
+                    id="customerNumber"
+                    value={order.customerNumber}
+                    onChange={(e) => handleCustomerInfoChange("customerNumber", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customerAddress">Customer Address</Label>
+                  <Input
+                    id="customerAddress"
+                    value={order.customerAddress}
+                    onChange={(e) => handleCustomerInfoChange("customerAddress", e.target.value)}
+                  />
+                </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label>Total Amount: ${order.totalAmount.toFixed(2)}</Label>
-            </div>
+              <div className="space-y-2">
+                <Label>Order Status</Label>
+                <Select
+                  value={order.status}
+                  onValueChange={(value) => setOrder({ ...order, status: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ORDER_STATUSES).map(([key, value]) => (
+                      <SelectItem key={value} value={value}>
+                        {key.charAt(0) + key.slice(1).toLowerCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="flex justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">Update Order</Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+              <div className="space-y-4">
+                <Label>Order Items</Label>
+                {order.items.map((item, index) => (
+                  <div key={index} className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <Input
+                      value={item.name}
+                      onChange={(e) => handleItemChange(index, "name", e.target.value)}
+                      placeholder="Item name"
+                    />
+                    <Input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+                      placeholder="Quantity"
+                    />
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.price}
+                      onChange={(e) => handleItemChange(index, "price", e.target.value)}
+                      placeholder="Price"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-between items-center pt-4 border-t">
+                <div className="text-lg font-semibold">
+                  Total Amount: ${order.totalAmount.toFixed(2)}
+                </div>
+                <div className="flex space-x-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.back()}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isUpdating}>
+                    {isUpdating ? "Updating..." : "Update Order"}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </RequireAuth>
   );
 }
