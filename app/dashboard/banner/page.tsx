@@ -1,11 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { toast } from "sonner";
 import { Upload, RefreshCw } from "lucide-react";
+
+import {
+  useGetBannerQuery,
+  useUpdateBannerMutation,
+} from "@/lib/api/bannerApi";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -13,147 +19,61 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function BannerPage() {
-  const [banner, setBanner] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [promoText, setPromoText] = useState<string>("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const router = useRouter();
+  const { data: banner, isLoading } = useGetBannerQuery();
+  const [updateBanner, { isLoading: updating }] = useUpdateBannerMutation();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchBanner();
-  }, []);
-
-  const fetchBanner = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banner`);
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch banner");
-      }
-      
-      const data = await response.json();
-      setBanner(data.imageUrl);
-      setPromoText(data.text || "Pre-orders enjoy 10% off Full price item");
-    } catch (error) {
-      console.error("Error fetching banner:", error);
-      toast.error("Failed to fetch banner");
-    } finally {
-      setLoading(false);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      
-      // Create preview URL
-      const fileUrl = URL.createObjectURL(file);
-      setPreviewUrl(fileUrl);
-    }
+  const resetDialog = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    setSelectedFile(null);
+    setIsDialogOpen(false);
   };
 
   const handleUpdateBanner = async () => {
     if (!selectedFile) {
-      toast.error("Please select an image first");
+      toast.error("Please select an image");
       return;
     }
 
     try {
-      setUpdating(true);
       const formData = new FormData();
       formData.append("image", selectedFile);
-      formData.append("promoText", promoText);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banner`, {
-        method: "PUT",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update banner");
-      }
-
-      const data = await response.json();
-      
-      // Immediately update the banner with the new URL
-      setBanner(data.imageUrl);
-      
-      // Revoke the object URL to avoid memory leaks
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-      
-      toast.success("Banner updated successfully");
-      setIsDialogOpen(false);
-      setSelectedFile(null);
-      setPreviewUrl(null);
-    } catch (error) {
-      console.error("Error updating banner:", error);
-      toast.error("Failed to update banner");
-    } finally {
-      setUpdating(false);
+      await updateBanner({ id: banner?._id || "", formData }).unwrap();
+      toast.success("Banner updated");
+      resetDialog();
+    } catch (err) {
+      toast.error("Update failed");
     }
   };
 
-  const handlePromoTextChange = async () => {
-    try {
-      setUpdating(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No token found");
-      }
-
-      const formData = new FormData();
-      formData.append("promoText", promoText);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banner/text`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ text: promoText }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update promotion text");
-      }
-
-      toast.success("Promotion text updated successfully");
-    } catch (error) {
-      console.error("Error updating promotion text:", error);
-      toast.error("Failed to update promotion text");
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto py-10">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold tracking-tight">Banner Management</h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -166,12 +86,12 @@ export default function BannerPage() {
               <DialogTitle>Update Banner Image</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6">
+              <div className="flex flex-col items-center border-2 border-dashed border-gray-300 rounded-lg p-6">
                 {previewUrl ? (
                   <div className="relative w-full aspect-[16/9] mb-4">
                     <Image
                       src={previewUrl}
-                      alt="Banner preview"
+                      alt="Preview"
                       fill
                       className="object-cover rounded-md"
                     />
@@ -179,8 +99,8 @@ export default function BannerPage() {
                 ) : (
                   <div className="text-center p-6">
                     <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <p className="mt-2 text-sm text-gray-500">
-                      Click to upload or drag and drop
+                    <p className="text-sm text-gray-500 mt-2">
+                      Choose an image to upload
                     </p>
                   </div>
                 )}
@@ -191,21 +111,11 @@ export default function BannerPage() {
                   className="mt-4"
                 />
               </div>
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsDialogOpen(false);
-                    setSelectedFile(null);
-                    if (previewUrl) {
-                      URL.revokeObjectURL(previewUrl);
-                      setPreviewUrl(null);
-                    }
-                  }}
-                >
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={resetDialog}>
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   onClick={handleUpdateBanner}
                   disabled={updating || !selectedFile}
                 >
@@ -215,7 +125,7 @@ export default function BannerPage() {
                       Updating...
                     </>
                   ) : (
-                    "Update Banner"
+                    "Update"
                   )}
                 </Button>
               </div>
@@ -229,56 +139,20 @@ export default function BannerPage() {
           <CardTitle>Current Banner</CardTitle>
         </CardHeader>
         <CardContent>
-          {banner ? (
+          {banner?.imageUrl ? (
             <div className="relative w-full aspect-[16/9]">
               <Image
-                src={banner}
+                src={banner.imageUrl}
                 alt="Banner"
                 fill
                 className="object-cover rounded-md"
-                key={banner} // Add key prop to force re-render when banner changes
               />
             </div>
           ) : (
-            <div className="flex items-center justify-center h-64 bg-gray-100 rounded-md">
+            <div className="flex justify-center items-center h-64 bg-gray-100 rounded-md">
               <p className="text-gray-500">No banner image available</p>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Promotion Text</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="promoText">Promotion Message</Label>
-              <Textarea
-                id="promoText"
-                value={promoText}
-                onChange={(e) => setPromoText(e.target.value)}
-                placeholder={promoText}
-                className="mt-2"
-              />
-            </div>
-            <div className="flex justify-end">
-              <Button 
-                onClick={handlePromoTextChange}
-                disabled={updating}
-              >
-                {updating ? (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  "Update Promotion Text"
-                )}
-              </Button>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

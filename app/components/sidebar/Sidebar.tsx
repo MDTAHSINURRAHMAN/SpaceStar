@@ -1,8 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -10,9 +8,15 @@ import {
   Package,
   ShoppingCart,
   Star,
-  Settings,
+  FileText,
   Image,
+  Home,
+  Info,
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
+import { useState } from "react";
 
 const routes = [
   {
@@ -46,15 +50,44 @@ const routes = [
     color: "text-orange-700",
   },
   {
-    label: "Settings",
-    icon: Settings,
-    href: "/dashboard/settings",
-    color: "text-gray-500",
+    label: "CMS",
+    icon: FileText,
+    href: "/dashboard/cms",
+    color: "text-green-500",
+    subRoutes: [
+      {
+        label: "Home",
+        icon: Home,
+        href: "/dashboard/cms/home",
+        color: "text-blue-400",
+      },
+      {
+        label: "About",
+        icon: Info,
+        href: "/dashboard/cms/about",
+        color: "text-purple-400",
+      },
+      {
+        label: "Story",
+        icon: BookOpen,
+        href: "/dashboard/cms/story",
+        color: "text-yellow-400",
+      },
+    ],
   },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const toggleDropdown = (href: string) => {
+    if (openDropdown === href) {
+      setOpenDropdown(null);
+    } else {
+      setOpenDropdown(href);
+    }
+  };
 
   return (
     <div className="space-y-4 py-4 flex flex-col h-full bg-[#111827] text-white">
@@ -64,21 +97,67 @@ export function Sidebar() {
         </Link>
         <div className="space-y-1">
           {routes.map((route) => (
-            <Link
-              key={route.href}
-              href={route.href}
-              className={cn(
-                "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-white hover:bg-white/10 rounded-lg transition",
-                pathname === route.href
-                  ? "text-white bg-white/10"
-                  : "text-zinc-400"
+            <div key={route.href}>
+              {route.subRoutes ? (
+                <div>
+                  <button
+                    onClick={() => toggleDropdown(route.href)}
+                    className={cn(
+                      "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-white hover:bg-white/10 rounded-lg transition",
+                      pathname.startsWith(route.href)
+                        ? "text-white bg-white/10"
+                        : "text-zinc-400"
+                    )}
+                  >
+                    <div className="flex items-center flex-1">
+                      <route.icon className={cn("h-5 w-5 mr-3", route.color)} />
+                      {route.label}
+                    </div>
+                    {openDropdown === route.href ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+                  {openDropdown === route.href && (
+                    <div className="ml-6 mt-1 space-y-1">
+                      {route.subRoutes.map((subRoute) => (
+                        <Link
+                          key={subRoute.href}
+                          href={subRoute.href}
+                          className={cn(
+                            "text-sm group flex p-2 w-full justify-start font-medium cursor-pointer hover:text-white hover:bg-white/10 rounded-lg transition",
+                            pathname === subRoute.href
+                              ? "text-white bg-white/10"
+                              : "text-zinc-400"
+                          )}
+                        >
+                          <div className="flex items-center flex-1">
+                            <subRoute.icon className={cn("h-4 w-4 mr-2", subRoute.color)} />
+                            {subRoute.label}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href={route.href}
+                  className={cn(
+                    "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-white hover:bg-white/10 rounded-lg transition",
+                    pathname === route.href
+                      ? "text-white bg-white/10"
+                      : "text-zinc-400"
+                  )}
+                >
+                  <div className="flex items-center flex-1">
+                    <route.icon className={cn("h-5 w-5 mr-3", route.color)} />
+                    {route.label}
+                  </div>
+                </Link>
               )}
-            >
-              <div className="flex items-center flex-1">
-                <route.icon className={cn("h-5 w-5 mr-3", route.color)} />
-                {route.label}
-              </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
