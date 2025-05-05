@@ -6,7 +6,7 @@ import { useLoginMutation } from "@/lib/api/loginApi";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [login, { isLoading }] = useLoginMutation();
 
@@ -32,10 +32,10 @@ export default function LoginPage() {
       <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
       <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm">
         <input
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          type="text"
+          placeholder="Username"
+          value={form.username}
+          onChange={(e) => setForm({ ...form, username: e.target.value })}
           className="border px-4 py-2 w-full"
           required
         />
