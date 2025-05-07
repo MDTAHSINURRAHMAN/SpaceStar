@@ -86,63 +86,66 @@ export default function ProductDetailsPage() {
       <Header pageName="Product Details" />
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Images (Left) */}
-          <Card className="">
-            <CardHeader className="">
-              <CardTitle>Product Images</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-2 gap-4">
-                {images?.length ? (
-                  images.map((url, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 hover:border-primary transition-colors"
-                    >
-                      <Image
-                        src={url}
-                        alt={`${name} - Image ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        priority={index === 0}
-                      />
+          {/* Left Column: Product Images and Chart Image stacked */}
+          <div className="flex flex-col gap-8">
+            {/* Product Images */}
+            <Card className="">
+              <CardHeader className="">
+                <CardTitle>Product Images</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 gap-4">
+                  {images?.length ? (
+                    images.map((url, index) => (
+                      <div
+                        key={index}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 hover:border-primary transition-colors"
+                      >
+                        <Image
+                          src={url}
+                          alt={`${name} - Image ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          priority={index === 0}
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-2 aspect-video bg-gray-50 flex items-center justify-center rounded-lg border border-dashed border-gray-300">
+                      <p className="text-gray-500">No images available</p>
                     </div>
-                  ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Chart Image */}
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle>Chart Image</CardTitle>
+              </CardHeader>
+              <CardContent className="w-full">
+                {product.chartImage ? (
+                  <div className="relative aspect-video overflow-hidden">
+                    <Image
+                      src={product.chartImage}
+                      alt={`${product.name} Chart`}
+                      fill
+                      className="rounded-lg"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
                 ) : (
-                  <div className="col-span-2 aspect-video bg-gray-50 flex items-center justify-center rounded-lg border border-dashed border-gray-300">
-                    <p className="text-gray-500">No images available</p>
+                  <div className="aspect-video bg-gray-50 flex items-center justify-center rounded-lg border border-dashed border-gray-300">
+                    <p className="text-gray-500">No chart image available</p>
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Chart Image (Left, below product images) */}
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>Chart Image</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              {product.chartImage ? (
-                <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-200">
-                  <Image
-                    src={product.chartImage}
-                    alt={`${product.name} Chart`}
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-video bg-gray-50 flex items-center justify-center rounded-lg border border-dashed border-gray-300">
-                  <p className="text-gray-500">No chart image available</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Product Information (Right) */}
+          {/* Right Column: Product Information */}
           <Card className="flex flex-col justify-between h-full">
             <div>
               <CardHeader className="">
