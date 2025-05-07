@@ -59,7 +59,7 @@ export default function BannerPage() {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      toast.loading("Updating banner...");
+      // toast.loading("Updating banner...");
       await updateBanner(formData).unwrap();
       toast.success("Banner updated successfully");
       resetDialog();
