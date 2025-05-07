@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import {FormEvent, useState } from "react";
 import { useLoginMutation } from "@/lib/api/loginApi";
-
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
@@ -34,7 +33,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="font-roboto flex flex-col items-center justify-center p-4">
+    <div className="font-roboto rounded-lg flex flex-col items-center justify-center p-4">
       {isRedirecting ? (
         <div className="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50">
           <div className="flex items-center justify-center">
@@ -51,7 +50,7 @@ export default function LoginPage() {
               placeholder="Username"
               value={form.username}
               onChange={(e) => setForm({ ...form, username: e.target.value })}
-              className="border px-4 py-2 w-full"
+              className="border px-4 py-2 w-full rounded-lg"
               required
             />
             <input
@@ -59,18 +58,18 @@ export default function LoginPage() {
               placeholder="Password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="border px-4 py-2 w-full"
+              className="border px-4 py-2 w-full rounded-lg"
               required
             />
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <button
               type="submit"
-              className="bg-black text-white px-4 py-2 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`w-full font-normal hover:shadow-sm rounded-lg transition-all py-3 bg-black text-white border border-gray-700 mb-10`}
               disabled={isLoading}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-"></div>
                   <span>Logging in...</span>
                 </div>
               ) : (
