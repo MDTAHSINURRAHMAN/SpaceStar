@@ -234,7 +234,7 @@ export default function AddOrderPage() {
                   <Label>Order Items</Label>
                   <div className="flex items-center gap-2 text-right font-medium">
                     <p>Total Price: ${formData.totalAmount.toFixed(2)}</p>
-                    <Button variant={buttonVariants({ variant: "spaceStarOutline" })} type="submit" disabled={isLoading} className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 cursor-pointer">
+                    <Button variant="spaceStarOutline" type="submit" disabled={isLoading} className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 cursor-pointer">
                   {isLoading ? "Creating..." : "Create Order"}
                 </Button>
                   </div>
