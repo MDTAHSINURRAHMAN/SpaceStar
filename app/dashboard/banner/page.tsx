@@ -110,9 +110,9 @@ export default function BannerPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
-                  variant={buttonVariants({ variant: "spaceStarOutline" })}
+                  variant="spaceStarOutline"
                   size="lg"
-                  className="font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all"
+                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
                   disabled={isUpdating}
                 >
                   <Upload className="h-4 w-4" /> Update Banner
@@ -152,15 +152,15 @@ export default function BannerPage() {
                     <Button
                       onClick={resetDialog}
                       size="lg"
-                      className="font-normal text-white hover:shadow-sm border border-gray-300/40 rounded-full transition-all"
+                      className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-white hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
                     >
                       Cancel
                     </Button>
                     <Button
-                      variant={buttonVariants({ variant: "spaceStarOutline" })}
+                      variant="spaceStarOutline"
                       onClick={handleUpdateBanner}
                       size="lg"
-                      className="font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all"
+                      className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
                       disabled={isUpdating}
                     >
                       {isUpdating ? "Updating..." : "Update"}
