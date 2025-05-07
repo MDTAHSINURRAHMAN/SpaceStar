@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 interface BackPageProps {
@@ -22,9 +23,9 @@ export function BackPage({ href, className = "" }: BackPageProps) {
 
   return (
     <Button
-      variant="ghost"
+      variant={buttonVariants({ variant: "spaceStarOutline" })}
       onClick={handleBack}
-      className={`flex items-center gap-2 ${className}`}
+      className={`font-roboto flex items-center gap-2 ${className} font-normal text-gray-500 hover:shadow-sm rounded-full transition-all`}
     >
       <ArrowLeft className="h-4 w-4" />
       Back

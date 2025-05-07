@@ -1,34 +1,23 @@
 "use client";
+import { BackPage } from "../backPage/backpage";
 
-import { Bell, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+interface HeaderProps {
+  pageName: string;
+}
 
-export function Header() {
+export function Header({ pageName }: HeaderProps) {
   return (
-    <div className="border-b">
-      <div className="flex h-16 items-center px-4">
+    <div className="font-roboto w-full">
+      <div className="w-full bg-white">
+        <div className="flex items-center p-4">
+          <BackPage />
+          <h1 className="text-3xl font-semibold text-gray-700 px-10 pl-4 tracking-wide">{pageName}</h1>
+        </div>
         <div className="ml-auto flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full pl-8 md:w-[300px] lg:w-[400px]"
-            />
-          </div>
-          <Button variant="ghost" size="icon">
+          {/* <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
-          </Button>
-          <DropdownMenu>
+          </Button> */}
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <div className="h-8 w-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
@@ -45,11 +34,10 @@ export function Header() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Log out</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600">Log out</DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
         </div>
       </div>
     </div>

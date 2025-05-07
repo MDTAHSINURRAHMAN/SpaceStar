@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import Image from "next/image";
 import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
+import { Header } from "@/app/components/header/Header";
+
 interface StoryFormData {
   image: File | null;
   content: StoryContentBlock[];
@@ -152,7 +154,7 @@ export default function StoryPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center h-screen">
         <Loader />
       </div>
     );
@@ -160,7 +162,7 @@ export default function StoryPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-red-500">
+      <div className="flex items-center justify-center h-screen text-red-500">
         Error loading stories
       </div>
     );
@@ -168,50 +170,66 @@ export default function StoryPage() {
 
   return (
     <RequireAuth>
-      <div className="container mx-auto p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Story Management</h1>
-          <Button onClick={() => setIsCreating(!isCreating)}>
-            {isCreating ? "Cancel" : "Add New Story"}
-          </Button>
+      <div className="font-roboto">
+        <div className="w-full">
+          <Header pageName="Story Page" />
         </div>
+        <div className="px-10 mt-4">
+          {!stories?.length && !isCreating && (
+            <Card className="mb-6 border-none shadow-none">
+              <CardContent>
+                <Button 
+                  onClick={() => setIsCreating(true)}
+                  variant="spaceStarOutline"
+                  className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Story
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-        {isCreating && (
-          <StoryForm
-            formData={formData}
-            onImageChange={handleImageChange}
-            onContentChange={handleContentChange}
-            onAddBlock={addContentBlock}
-            onRemoveBlock={removeContentBlock}
-            onSubmit={handleCreate}
-          />
-        )}
+          {isCreating && (
+            <Card className="border-none shadow-none">
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">Create New Story</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <StoryForm
+                  formData={formData}
+                  onImageChange={handleImageChange}
+                  onContentChange={handleContentChange}
+                  onAddBlock={addContentBlock}
+                  onRemoveBlock={removeContentBlock}
+                  onSubmit={handleCreate}
+                />
+              </CardContent>
+            </Card>
+          )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {stories?.map((story) => (
-            <StoryCard
-              key={story._id}
-              story={story}
-              isEditing={editingId === story._id}
-              formData={formData}
-              onEdit={() => handleEdit(story)}
-              onUpdate={() => handleUpdate(story._id)}
-              onDelete={() => handleDelete(story._id)}
-              onCancel={() => {
-                setEditingId(null);
-                resetForm();
-              }}
-              onImageChange={handleImageChange}
-              onContentChange={handleContentChange}
-              onAddBlock={addContentBlock}
-              onRemoveBlock={removeContentBlock}
-            />
-          ))}
+          <div className="grid grid-cols-1 gap-6">
+            {stories?.map((story) => (
+              <StoryCard
+                key={story._id}
+                story={story}
+                isEditing={editingId === story._id}
+                formData={formData}
+                onEdit={() => handleEdit(story)}
+                onUpdate={() => handleUpdate(story._id)}
+                onDelete={() => handleDelete(story._id)}
+                onCancel={() => {
+                  setEditingId(null);
+                  resetForm();
+                }}
+                onImageChange={handleImageChange}
+                onContentChange={handleContentChange}
+                onAddBlock={addContentBlock}
+                onRemoveBlock={removeContentBlock}
+              />
+            ))}
+          </div>
         </div>
-
-        {stories?.length === 0 && !isCreating && (
-          <EmptyState onCreateClick={() => setIsCreating(true)} />
-        )}
       </div>
     </RequireAuth>
   );
@@ -235,28 +253,29 @@ function StoryForm({
   onSubmit
 }: StoryFormProps) {
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle>Create New Story</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <ImageUpload
-            image={formData.image}
-            onChange={onImageChange}
-          />
-          <ContentBlockList
-            blocks={formData.content}
-            onChange={onContentChange}
-            onAdd={onAddBlock}
-            onRemove={onRemoveBlock}
-          />
-          <Button onClick={onSubmit} className="w-full">
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <ImageUpload
+          image={formData.image}
+          onChange={onImageChange}
+        />
+        <ContentBlockList
+          blocks={formData.content}
+          onChange={onContentChange}
+          onAdd={onAddBlock}
+          onRemove={onRemoveBlock}
+        />
+        <div className="flex gap-2">
+          <Button 
+            onClick={onSubmit}
+            variant="spaceStarOutline"
+            className="flex-1 font-medium hover:bg-blue-50 rounded-full transition-all border-2 border-gray-200 hover:border-gray-300 py-2"
+          >
             Create Story
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -288,63 +307,73 @@ function StoryCard({
   onRemoveBlock
 }: StoryCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex justify-between items-center">
-          <span>Story</span>
-          <div className="flex gap-2">
-            {isEditing ? (
-              <>
-                <Button size="sm" onClick={onUpdate}>Save</Button>
-                <Button size="sm" variant="outline" onClick={onCancel}>Cancel</Button>
-              </>
-            ) : (
-              <>
-                <Button size="sm" variant="outline" onClick={onEdit}>Edit</Button>
-                <Button size="sm" variant="destructive" onClick={onDelete}>Delete</Button>
-              </>
-            )}
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="relative h-48 w-full overflow-hidden rounded-md">
-            <Image
-              src={story.image}
-              alt="Story image"
-              fill
-              className="object-cover"
-            />
-          </div>
+    <div className="flex flex-col gap-4 p-6 rounded-lg shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+      <div className="relative h-48 w-full overflow-hidden rounded-md">
+        <Image
+          src={story.image}
+          alt="Story image"
+          fill
+          className="object-cover"
+        />
+      </div>
 
-          {isEditing ? (
-            <div>
-              <ImageUpload
-                image={formData.image}
-                onChange={onImageChange}
-                optional
-              />
-              <ContentBlockList
-                blocks={formData.content}
-                onChange={onContentChange}
-                onAdd={onAddBlock}
-                onRemove={onRemoveBlock}
-              />
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {story.content.map((block, index) => (
-                <div key={index} className="p-4 border rounded-md">
-                  <h3 className="font-bold mb-2">{block.title}</h3>
-                  <p className="text-gray-700">{block.description}</p>
-                </div>
-              ))}
-            </div>
-          )}
+      {isEditing ? (
+        <div className="space-y-4">
+          <ImageUpload
+            image={formData.image}
+            onChange={onImageChange}
+            optional
+          />
+          <ContentBlockList
+            blocks={formData.content}
+            onChange={onContentChange}
+            onAdd={onAddBlock}
+            onRemove={onRemoveBlock}
+          />
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="spaceStarOutline"
+              onClick={onUpdate}
+              className="flex-1 font-medium hover:bg-blue-50 rounded-full transition-all border-2 border-gray-200 hover:border-gray-300 py-2"
+            >
+              Save
+            </Button>
+            <Button
+              variant="spaceStarOutline"
+              onClick={onCancel}
+              className="flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      ) : (
+        <div className="space-y-4">
+          {story.content.map((block, index) => (
+            <div key={index} className="p-4 bg-gray-50 rounded-md">
+              <h3 className="font-bold mb-2">{block.title}</h3>
+              <p className="text-gray-700">{block.description}</p>
+            </div>
+          ))}
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="spaceStarOutline"
+              onClick={onEdit}
+              className="flex-1 font-medium hover:bg-blue-50 rounded-full transition-all border-2 border-gray-200 hover:border-gray-300 py-2"
+            >
+              Edit
+            </Button>
+            <Button
+              variant="spaceStarOutline"
+              onClick={onDelete}
+              className="flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -356,11 +385,11 @@ interface ImageUploadProps {
 
 function ImageUpload({ image, onChange, optional }: ImageUploadProps) {
   return (
-    <div>
-      <label className="block mb-2">Image {optional && "(optional)"}</label>
+    <div className="space-y-2">
+      <label className="text-sm font-medium">Image {optional && "(optional)"}</label>
       <Input type="file" accept="image/*" onChange={onChange} />
       {image && (
-        <p className="mt-2 text-sm text-green-600">
+        <p className="text-sm text-green-600">
           Image selected: {image.name}
         </p>
       )}
@@ -382,43 +411,43 @@ function ContentBlockList({
   onRemove
 }: ContentBlockListProps) {
   return (
-    <div>
-      <div className="flex justify-between items-center mb-2">
-        <label className="font-medium">Content Blocks</label>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <label className="text-sm font-medium">Content Blocks</label>
         <Button
-          size="sm"
-          variant="outline"
+          variant="spaceStarOutline"
           onClick={onAdd}
-          className="flex items-center gap-1"
+          className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
         >
-          <Plus className="h-4 w-4" /> Add Block
+          <Plus className="mr-2 h-4 w-4" />
+          Add Block
         </Button>
       </div>
 
       {blocks.map((block, index) => (
-        <div key={index} className="p-4 border rounded-md mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-medium">Block {index + 1}</h3>
+        <div key={index} className="p-4 border rounded-md space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-medium">Block {index + 1}</h3>
             <Button
-              size="sm"
               variant="ghost"
               onClick={() => onRemove(index)}
               disabled={blocks.length <= 1}
+              className="p-1"
             >
               <Trash className="h-4 w-4 text-red-500" />
             </Button>
           </div>
           <div className="space-y-3">
-            <div>
-              <label className="block text-sm mb-1">Title</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Title</label>
               <Input
                 value={block.title}
                 onChange={(e) => onChange(index, "title", e.target.value)}
                 placeholder="Enter title"
               />
             </div>
-            <div>
-              <label className="block text-sm mb-1">Description</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Description</label>
               <Textarea
                 value={block.description}
                 onChange={(e) => onChange(index, "description", e.target.value)}
@@ -429,15 +458,6 @@ function ContentBlockList({
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
-  return (
-    <div className="text-center p-8 border rounded-md">
-      <p className="text-gray-500 mb-4">No stories found</p>
-      <Button onClick={onCreateClick}>Create Your First Story</Button>
     </div>
   );
 }

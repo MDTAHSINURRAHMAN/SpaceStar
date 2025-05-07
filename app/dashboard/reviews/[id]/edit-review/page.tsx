@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -14,17 +13,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Star, Upload } from "lucide-react";
+import { Star, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useGetAllProductsQuery } from "@/lib/api/productApi";
-import { useGetReviewByIdQuery, useUpdateReviewMutation } from "@/lib/api/reviewApi";
+import {
+  useGetReviewByIdQuery,
+  useUpdateReviewMutation,
+} from "@/lib/api/reviewApi";
 import RequireAuth from "@/app/providers/RequireAuth";
+import Loader from "@/app/components/Loader";
+import { Card, CardContent } from "@/components/ui/card";
+import { Header } from "@/app/components/header/Header";
+import { ProductsPageContent } from "@/app/components/ProductsPageContent";
 
 export default function EditReviewPage() {
   const params = useParams();
   const router = useRouter();
   const reviewId = params.id as string;
-  
+
   const { data: review, isLoading } = useGetReviewByIdQuery(reviewId);
   const { data: products = [] } = useGetAllProductsQuery();
   const [updateReview, { isLoading: isSaving }] = useUpdateReviewMutation();
@@ -38,6 +44,7 @@ export default function EditReviewPage() {
     customer: "",
     comment: "",
     subtext: "",
+    status: "Pending",
   });
 
   useEffect(() => {
@@ -47,6 +54,7 @@ export default function EditReviewPage() {
         customer: review.name || "",
         comment: review.review || "",
         subtext: review.subtext || "",
+        status: review.status || "Pending",
       });
       setRating(review.rating || 0);
       if (review.imageUrl) {
@@ -100,6 +108,7 @@ export default function EditReviewPage() {
     formPayload.append("rating", rating.toString());
     formPayload.append("review", formData.comment);
     formPayload.append("subtext", formData.subtext);
+    formPayload.append("status", formData.status);
 
     if (image) {
       formPayload.append("image", image);
@@ -132,8 +141,8 @@ export default function EditReviewPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-lg">Loading review details...</p>
+      <div className="flex items-center justify-center h-screen">
+        <Loader />
       </div>
     );
   }
@@ -142,137 +151,152 @@ export default function EditReviewPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <p className="text-lg mb-4">Review not found</p>
-        <Button onClick={() => router.push("/dashboard/reviews")}>Back to Reviews</Button>
+        <Button onClick={() => router.push("/dashboard/reviews")}>
+          Back to Reviews
+        </Button>
       </div>
     );
   }
 
   return (
     <RequireAuth>
-      <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={() => router.push(`/dashboard/reviews/${reviewId}`)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
-          </Button>
-          <h1 className="text-2xl font-bold">Edit Review</h1>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="product">Product *</Label>
-            <Select
-              value={formData.product}
-              onValueChange={(value) => handleSelectChange("product", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a product" />
-              </SelectTrigger>
-              <SelectContent>
-                {products.map((product) => (
-                  <SelectItem key={product._id} value={product._id}>
-                    {product.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <ProductsPageContent>
+        <div className="font-roboto">
+          <div className="w-full">
+            <Header pageName="Edit Review" />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="customer">Customer Name *</Label>
-            <Input
-              id="customer"
-              name="customer"
-              value={formData.customer}
-              onChange={handleInputChange}
-              placeholder="Enter customer name"
-            />
+          <div className="px-4 mt-4">
+            <Card>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="product">Product *</Label>
+                      <Select
+                        value={formData.product}
+                        onValueChange={(value) =>
+                          handleSelectChange("product", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.map((product) => (
+                            <SelectItem key={product._id} value={product._id}>
+                              {product.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="customer">Customer Name *</Label>
+                      <Input
+                        id="customer"
+                        name="customer"
+                        value={formData.customer}
+                        onChange={handleInputChange}
+                        placeholder="Enter customer name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Status</Label>
+                      <Select
+                        value={formData.status}
+                        onValueChange={(value) =>
+                          handleSelectChange("status", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Approved">Approved</SelectItem>
+                          <SelectItem value="Rejected">Rejected</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Rating *</Label>
+                    <div className="flex space-x-1">{renderStars()}</div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="subtext">Subtext</Label>
+                    <Input
+                      id="subtext"
+                      name="subtext"
+                      value={formData.subtext}
+                      onChange={handleInputChange}
+                      placeholder="Enter subtext"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="comment">Comment</Label>
+                    <Textarea
+                      id="comment"
+                      name="comment"
+                      value={formData.comment}
+                      onChange={handleInputChange}
+                      placeholder="Enter review comment"
+                      rows={4}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="image">Upload Image</Label>
+                    <div className="flex flex-col space-y-2">
+                      <div className="flex items-center gap-4">
+                        <label
+                          htmlFor="image-upload"
+                          className="cursor-pointer"
+                        >
+                          <div className="flex h-10 items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload Image
+                          </div>
+                          <input
+                            id="image-upload"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageChange}
+                          />
+                        </label>
+                        {image && (
+                          <span className="text-sm text-muted-foreground">
+                            {image.name}
+                          </span>
+                        )}
+                      </div>
+                      {imagePreview && (
+                        <div className="mt-2">
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="h-40 w-auto rounded-md object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center pt-4">
+                    <Button
+                      value={buttonVariants({ variant: "spaceStarOutline" })}
+                      type="submit"
+                      disabled={isSaving}
+                      className="font-normal bg-transparent text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                    >
+                      {isSaving ? "Updating..." : "Update Review"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
-
-        <div className="space-y-2">
-          <Label>Rating *</Label>
-          <div className="flex space-x-1">{renderStars()}</div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="subtext">Subtext</Label>
-          <Input
-            id="subtext"
-            name="subtext"
-            value={formData.subtext}
-            onChange={handleInputChange}
-            placeholder="Enter subtext"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="comment">Comment</Label>
-          <Textarea
-            id="comment"
-            name="comment"
-            value={formData.comment}
-            onChange={handleInputChange}
-            placeholder="Enter review comment"
-            rows={4}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="image">Upload Image</Label>
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center gap-4">
-              <label htmlFor="image-upload" className="cursor-pointer">
-                <div className="flex h-10 items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload Image
-                </div>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
-                />
-              </label>
-              {image && (
-                <span className="text-sm text-muted-foreground">
-                  {image.name}
-                </span>
-              )}
-            </div>
-            {imagePreview && (
-              <div className="mt-2">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="h-40 w-auto rounded-md object-cover"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex justify-end space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push(`/dashboard/reviews/${reviewId}`)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSaving}>
-            {isSaving ? "Updating..." : "Update Review"}
-          </Button>
-        </div>
-      </form>
-    </motion.div>
+      </ProductsPageContent>
     </RequireAuth>
   );
 }

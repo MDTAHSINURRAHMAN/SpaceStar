@@ -19,6 +19,8 @@ import RequireAuth from "@/app/providers/RequireAuth";
 import { BackPage } from "@/app/components/backPage/backpage";
 import { Order } from "@/types/orders";
 import Loader from "@/app/components/Loader";
+import { Header } from "@/app/components/header/Header";
+
 interface OrderItem {
   name: string;
   quantity: number;
@@ -27,23 +29,18 @@ interface OrderItem {
 
 const ORDER_STATUSES = {
   PENDING: "pending",
-  PROCESSING: "processing", 
+  PROCESSING: "processing",
   COMPLETED: "completed",
-  CANCELLED: "cancelled"
+  CANCELLED: "cancelled",
 } as const;
 
 export default function EditOrderPage() {
   const router = useRouter();
   const { id } = useParams();
   const [updateOrder, { isLoading: isUpdating }] = useUpdateOrderMutation();
+  const { data: orderData, isLoading, isError } = useGetOrderQuery(id as string);
 
-  const {
-    data: orderData,
-    isLoading,
-    isError,
-  } = useGetOrderQuery(id as string);
-
-  const [order, setOrder] = useState<Order | null>(orderData || null);
+  const [order, setOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     if (orderData) setOrder(orderData);
@@ -89,14 +86,17 @@ export default function EditOrderPage() {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
-  const handleCustomerInfoChange = (field: keyof Order["customer"], value: string) => {
+  const handleCustomerInfoChange = (
+    field: keyof Order["customer"],
+    value: string
+  ) => {
     if (!order) return;
     setOrder({
       ...order,
       customer: {
         ...order.customer,
-        [field]: value
-      }
+        [field]: value,
+      },
     });
   };
 
@@ -119,56 +119,33 @@ export default function EditOrderPage() {
 
   return (
     <RequireAuth>
-      <div className="container mx-auto py-10">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <BackPage />
-            <h2 className="text-3xl font-bold tracking-tight">
-              Edit Order
-            </h2>
-          </div>
+      <div className="font-roboto">
+        <div className="">
+          <Header pageName="Edit Order" />
         </div>
 
-        <Card>
+        <Card className="px-4">
           <CardHeader>
-            <CardTitle>Order Details</CardTitle>
+            <CardTitle className="text-xl">Customer Information</CardTitle>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="customerName">Customer Name</Label>
-                  <Input
-                    id="customerName"
-                    value={order.customer.name}
-                    onChange={(e) => handleCustomerInfoChange("name", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="customerEmail">Customer Email</Label>
-                  <Input
-                    id="customerEmail"
-                    type="email"
-                    value={order.customer.email}
-                    onChange={(e) => handleCustomerInfoChange("email", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="customerNumber">Customer Number</Label>
-                  <Input
-                    id="customerNumber"
-                    value={order.customer.phone}
-                    onChange={(e) => handleCustomerInfoChange("phone", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="customerAddress">Customer Address</Label>
-                  <Input
-                    id="customerAddress"
-                    value={order.customer.address}
-                    onChange={(e) => handleCustomerInfoChange("address", e.target.value)}
-                  />
-                </div>
+                {["name", "email", "phone", "address"].map((field) => (
+                  <div key={field} className="space-y-2">
+                    <Label htmlFor={field}>
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
+                    </Label>
+                    <Input
+                      id={field}
+                      type={field === "email" ? "email" : "text"}
+                      value={order.customer[field as keyof typeof order.customer]}
+                      onChange={(e) =>
+                        handleCustomerInfoChange(field as keyof typeof order.customer, e.target.value)
+                      }
+                    />
+                  </div>
+                ))}
               </div>
 
               <div className="space-y-2">
@@ -183,7 +160,7 @@ export default function EditOrderPage() {
                   <SelectContent>
                     {Object.entries(ORDER_STATUSES).map(([key, value]) => (
                       <SelectItem key={value} value={value}>
-                        {key.charAt(0) + key.slice(1).toLowerCase()}
+                        {key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -191,9 +168,9 @@ export default function EditOrderPage() {
               </div>
 
               <div className="space-y-4">
-                <Label>Order Items</Label>
+                <Label className="text-sm font-medium text-gray-500">Order Items</Label>
                 {order.items.map((item, index) => (
-                  <div key={index} className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg">
                     <Input
                       value={item.name}
                       onChange={(e) => handleItemChange(index, "name", e.target.value)}
@@ -218,19 +195,15 @@ export default function EditOrderPage() {
                 ))}
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t">
-                <div className="text-lg font-semibold">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
+                <div className="text-lg font-medium">
                   Total Amount: ${order.totalAmount.toFixed(2)}
                 </div>
-                <div className="flex space-x-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.back()}
-                  >
+                <div className="flex justify-end gap-4">
+                  {/* <Button type="button" variant="outline" onClick={() => router.back()}>
                     Cancel
-                  </Button>
-                  <Button type="submit" disabled={isUpdating}>
+                  </Button> */}
+                  <Button variant="spaceStarOutline" type="submit" disabled={isUpdating} className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 mb-10">
                     {isUpdating ? "Updating..." : "Update Order"}
                   </Button>
                 </div>

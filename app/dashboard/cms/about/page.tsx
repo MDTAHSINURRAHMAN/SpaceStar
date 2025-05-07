@@ -10,7 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash, List } from "lucide-react";
 import { toast } from "sonner";
 import RequireAuth from "@/app/providers/RequireAuth";
-import Loader from "@/app/components/Loader"; 
+import Loader from "@/app/components/Loader";
+import { Header } from "@/app/components/header/Header";
+
 const INITIAL_FORM_STATE: AboutContent = {
   brandMessage: "",
   missionPoints: ["", "", ""],
@@ -104,7 +106,7 @@ export default function AboutPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center h-screen">
         <Loader />
       </div>
     );
@@ -112,174 +114,200 @@ export default function AboutPage() {
 
   if (error) {
     return (
-      <div className="text-red-500 text-center mt-10">
-        Error loading About content
+      <div className="flex items-center justify-center h-screen text-red-500">
+        Error loading about content
       </div>
     );
   }
 
   return (
     <RequireAuth>
-      <div className="container mx-auto p-6 space-y-6">
-        {!about && !isEditing && (
-          <Card>
-            <CardHeader>
-              <CardTitle>About Content</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => setIsEditing(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Content
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+      <div className="font-roboto">
+        <div className="w-full">
+          <Header pageName="About Page" />
+        </div>
+        <div className="px-10 mt-4">
+          {!about && !isEditing && (
+            <Card className="mb-6 border-none shadow-none">
+              <CardContent>
+                <Button 
+                  onClick={() => setIsEditing(true)}
+                  variant="spaceStarOutline"
+                  className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Content
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-        {(isEditing || about) && (
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {isEditing ? "Edit About Content" : "About Information"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {isEditing ? (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Brand Message</label>
-                    <Textarea
-                      name="brandMessage"
-                      value={formData.brandMessage}
-                      onChange={handleInputChange}
-                      placeholder="Enter your brand message"
-                      rows={4}
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium">Mission Points</label>
-                      <Button 
-                        onClick={addMissionPoint}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Point
-                      </Button>
+          {(isEditing || about) && (
+            <Card className="border-none shadow-none">
+              <CardHeader>
+                <CardTitle className="text-lg font-medium">
+                  {isEditing ? "Edit About Content" : "About Information"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {isEditing ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Brand Message</label>
+                      <Textarea
+                        name="brandMessage"
+                        value={formData.brandMessage}
+                        onChange={handleInputChange}
+                        placeholder="Enter your brand message"
+                        rows={4}
+                        className="resize-none"
+                      />
                     </div>
-                    
-                    {formData.missionPoints.map((point, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <List className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                        <Input
-                          value={point}
-                          onChange={(e) => handleMissionChange(idx, e.target.value)}
-                          placeholder={`Mission point ${idx + 1}`}
-                          className="flex-1"
-                        />
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-medium">Mission Points</label>
                         <Button 
-                          onClick={() => removeMissionPoint(idx)}
-                          variant="ghost"
-                          size="icon"
-                          disabled={formData.missionPoints.length <= 1}
+                          onClick={addMissionPoint}
+                          variant="spaceStarOutline"
+                          className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
                         >
-                          <Trash className="h-4 w-4" />
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Point
                         </Button>
                       </div>
-                    ))}
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Email</label>
-                      <Input
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="contact@example.com"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Phone</label>
-                      <Input
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="+1 (555) 000-0000"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Address</label>
-                    <Textarea
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      placeholder="Enter your address"
-                      rows={2}
-                    />
-                  </div>
-
-                  <div className="flex gap-2 pt-4">
-                    <Button onClick={handleSave}>Save Changes</Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setIsEditing(false);
-                        if (about) setFormData(about);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Brand Message</h3>
-                    <p className="text-gray-600">{about?.brandMessage}</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Mission Points</h3>
-                    <ul className="list-disc pl-6 space-y-1">
-                      {about?.missionPoints.map((point, i) => (
-                        <li key={i} className="text-gray-600">{point}</li>
+                      
+                      {formData.missionPoints.map((point, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <List className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                          <Input
+                            value={point}
+                            onChange={(e) => handleMissionChange(idx, e.target.value)}
+                            placeholder={`Mission point ${idx + 1}`}
+                            className="flex-1"
+                          />
+                          <Button 
+                            onClick={() => removeMissionPoint(idx)}
+                            variant="ghost"
+                            size="icon"
+                            disabled={formData.missionPoints.length <= 1}
+                            className="text-red-500"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
                       ))}
-                    </ul>
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <h3 className="font-medium">Email</h3>
-                      <p className="text-gray-600">{about?.email}</p>
                     </div>
-                    <div>
-                      <h3 className="font-medium">Phone</h3>
-                      <p className="text-gray-600">{about?.phone}</p>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Email</label>
+                        <Input
+                          name="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="contact@example.com"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Phone</label>
+                        <Input
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          placeholder="+1 (555) 000-0000"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Address</label>
+                      <Textarea
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        placeholder="Enter your address"
+                        rows={2}
+                        className="resize-none"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-4">
+                      <Button 
+                        onClick={handleSave}
+                        variant="spaceStarOutline"
+                        className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                      >
+                        Save Changes
+                      </Button>
+                      <Button 
+                        variant="spaceStarOutline"
+                        onClick={() => {
+                          setIsEditing(false);
+                          if (about) setFormData(about);
+                        }}
+                        className="font-normal bg-red-500 text-white hover:shadow-sm rounded-full transition-all cursor-pointer"
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
+                ) : (
+                  <div className="flex flex-col gap-4 p-6 rounded-lg shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Brand Message</h3>
+                      <p className="text-gray-600">{about?.brandMessage}</p>
+                    </div>
 
-                  <div>
-                    <h3 className="font-medium">Address</h3>
-                    <p className="text-gray-600">{about?.address}</p>
-                  </div>
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Mission Points</h3>
+                      <ul className="list-disc pl-6 space-y-1">
+                        {about?.missionPoints.map((point, i) => (
+                          <li key={i} className="text-gray-600">{point}</li>
+                        ))}
+                      </ul>
+                    </div>
 
-                  <div className="flex gap-2 pt-4">
-                    <Button onClick={() => setIsEditing(true)}>Edit</Button>
-                    <Button variant="destructive" onClick={handleDelete}>
-                      Delete
-                    </Button>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <h3 className="font-medium">Email</h3>
+                        <p className="text-gray-600">{about?.email}</p>
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Phone</h3>
+                        <p className="text-gray-600">{about?.phone}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-medium">Address</h3>
+                      <p className="text-gray-600">{about?.address}</p>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <Button 
+                        onClick={() => setIsEditing(true)}
+                        variant="spaceStarOutline"
+                        className="flex-1 font-medium hover:bg-blue-50 rounded-full transition-all border-2 border-gray-200 hover:border-gray-300 py-2"
+                      >
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="spaceStarOutline"
+                        onClick={handleDelete}
+                        className="flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </RequireAuth>
   );

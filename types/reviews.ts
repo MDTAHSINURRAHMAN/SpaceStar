@@ -9,4 +9,5 @@ export interface Review {
   imageUrl?: string;
   createdAt: string;
   updatedAt: string;
+  status?: string;
 }

@@ -28,5 +28,5 @@ export const store = configureStore({
       .concat(homeApi.middleware)
       .concat(aboutApi.middleware)
       .concat(storyApi.middleware)
-      .concat(bannerApi.middleware), // ✅ Add middleware
+      .concat(bannerApi.middleware)// ✅ Add middleware
 });

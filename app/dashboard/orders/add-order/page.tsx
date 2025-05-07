@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { BackPage } from "@/app/components/backPage/backpage";
 import { useCreateOrderMutation } from "@/lib/api/orderApi";
 import RequireAuth from "@/app/providers/RequireAuth";
 import {
@@ -18,6 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Loader from "@/app/components/Loader";
+import { buttonVariants } from "@/components/ui/button";
+import { Header } from "@/app/components/header/Header";
+import { ProductsPageContent } from "@/app/components/ProductsPageContent";
+
 interface OrderItem {
   name: string;
   quantity: number;
@@ -147,18 +150,14 @@ export default function AddOrderPage() {
 
   return (
     <RequireAuth>
-      <div className="container mx-auto py-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <BackPage />
-            <h1 className="text-2xl font-bold">Add New Order</h1>
-          </div>
+      <ProductsPageContent><div className="font-roboto">
+        <div className="w-full">
+          <Header pageName="Add Order" />
         </div>
 
+        <div className="px-4 mt-4">
+
         <Card>
-          <CardHeader>
-            <CardTitle>Order Details</CardTitle>
-          </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Customer Information */}
@@ -169,6 +168,7 @@ export default function AddOrderPage() {
                     id="customerName"
                     value={formData.customer.name}
                     onChange={(e) => handleCustomerChange("name", e.target.value)}
+                    placeholder="Enter customer name"
                     required
                   />
                 </div>
@@ -180,6 +180,7 @@ export default function AddOrderPage() {
                     type="email"
                     value={formData.customer.email}
                     onChange={(e) => handleCustomerChange("email", e.target.value)}
+                    placeholder="Enter customer email"
                     required
                   />
                 </div>
@@ -191,6 +192,7 @@ export default function AddOrderPage() {
                     type="tel"
                     value={formData.customer.phone}
                     onChange={(e) => handleCustomerChange("phone", e.target.value)}
+                    placeholder="Enter customer phone"
                     required
                   />
                 </div>
@@ -202,7 +204,7 @@ export default function AddOrderPage() {
                     onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as typeof formData.status }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Select order status" />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(ORDER_STATUSES).map(([key, value]) => (
@@ -221,6 +223,7 @@ export default function AddOrderPage() {
                   id="customerAddress"
                   value={formData.customer.address}
                   onChange={(e) => handleCustomerChange("address", e.target.value)}
+                  placeholder="Enter shipping address"
                   required
                 />
               </div>
@@ -229,8 +232,11 @@ export default function AddOrderPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <Label>Order Items</Label>
-                  <div className="text-right font-medium">
-                    Total: ${formData.totalAmount.toFixed(2)}
+                  <div className="flex items-center gap-2 text-right font-medium">
+                    <p>Total Price: ${formData.totalAmount.toFixed(2)}</p>
+                    <Button variant={buttonVariants({ variant: "spaceStarOutline" })} type="submit" disabled={isLoading} className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 cursor-pointer">
+                  {isLoading ? "Creating..." : "Create Order"}
+                </Button>
                   </div>
                 </div>
 
@@ -243,6 +249,7 @@ export default function AddOrderPage() {
                         onChange={(e) =>
                           handleItemChange(index, "name", e.target.value)
                         }
+                        placeholder="Enter product name"
                         required
                       />
                     </div>
@@ -260,6 +267,7 @@ export default function AddOrderPage() {
                               parseInt(e.target.value)
                             )
                           }
+                          placeholder="Enter quantity"
                           min="1"
                           required
                         />
@@ -277,6 +285,7 @@ export default function AddOrderPage() {
                               parseFloat(e.target.value)
                             )
                           }
+                          placeholder="Enter price"
                           min="0"
                           step="0.01"
                           required
@@ -305,29 +314,18 @@ export default function AddOrderPage() {
                 <Button 
                   type="button" 
                   onClick={addItem} 
-                  variant="outline"
-                  className="w-full"
+                  variant={buttonVariants({ variant: "spaceStarOutline" })}
+                  className="w-full font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 cursor-pointer"
                 >
                   Add Another Item
-                </Button>
-              </div>
-
-              <div className="flex justify-end space-x-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push("/dashboard/orders")}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Creating..." : "Create Order"}
                 </Button>
               </div>
             </form>
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </div></ProductsPageContent>
+      
     </RequireAuth>
   );
 }

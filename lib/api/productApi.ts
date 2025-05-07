@@ -9,8 +9,12 @@ export const productApi = createApi({
   }),
   tagTypes: ["Product"],
   endpoints: (builder) => ({
-    getAllProducts: builder.query<Product[], void>({
-      query: () => "/api/products",
+    getAllProducts: builder.query<Product[], { search?: string; category?: string } | void>({
+      query: (params) => {
+        if (!params) return "/api/products";
+        const query = new URLSearchParams(params).toString();
+        return `/api/products?${query}`;
+      },
       providesTags: ["Product"],
     }),
     getProduct: builder.query<Product, string>({

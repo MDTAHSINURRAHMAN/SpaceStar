@@ -9,8 +9,13 @@ export const orderApi = createApi({
   }),
   tagTypes: ["Order"],
   endpoints: (builder) => ({
-    getAllOrders: builder.query<Order[], void>({
-      query: () => "/api/orders",
+    getAllOrders: builder.query<Order[], { search?: string } | void>({
+      query: (params) => {
+        if (params?.search) {
+          return `/api/orders?search=${encodeURIComponent(params.search)}`;
+        }
+        return "/api/orders";
+      },
       providesTags: (result) =>
         result
           ? [

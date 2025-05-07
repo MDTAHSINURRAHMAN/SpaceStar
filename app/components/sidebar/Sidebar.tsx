@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -9,69 +9,67 @@ import {
   ShoppingCart,
   Star,
   FileText,
-  Image,
   Home,
   Info,
   BookOpen,
   ChevronDown,
   ChevronRight,
+  ImageIcon,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
+import logo from "../../assets/logo-black.png";
+import { useLogoutMutation } from "@/lib/api/loginApi";
 
 const routes = [
   {
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
-    color: "text-sky-500",
-  },
-  {
     label: "Banner",
-    icon: Image,
+    icon: ImageIcon,
     href: "/dashboard/banner",
-    color: "text-violet-500",
+    color: "text-white",
   },
   {
     label: "Products",
     icon: Package,
     href: "/dashboard/products",
-    color: "text-violet-500",
+    color: "text-white",
   },
   {
     label: "Orders",
     icon: ShoppingCart,
     href: "/dashboard/orders",
-    color: "text-pink-700",
+    color: "text-white",
   },
   {
     label: "Reviews",
     icon: Star,
     href: "/dashboard/reviews",
-    color: "text-orange-700",
+    color: "text-white",
   },
   {
     label: "CMS",
     icon: FileText,
     href: "/dashboard/cms",
-    color: "text-green-500",
+    color: "text-white",
     subRoutes: [
       {
         label: "Home",
         icon: Home,
         href: "/dashboard/cms/home",
-        color: "text-blue-400",
+        color: "text-white",
       },
       {
         label: "About",
         icon: Info,
         href: "/dashboard/cms/about",
-        color: "text-purple-400",
+        color: "text-white",
       },
       {
         label: "Story",
         icon: BookOpen,
         href: "/dashboard/cms/story",
-        color: "text-yellow-400",
+        color: "text-white",
       },
     ],
   },
@@ -79,7 +77,9 @@ const routes = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
 
   const toggleDropdown = (href: string) => {
     if (openDropdown === href) {
@@ -89,10 +89,20 @@ export function Sidebar() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+      router.replace('/login'); // Redirect to login page after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
-    <div className="space-y-4 py-4 flex flex-col h-full bg-[#111827] text-white">
+    <div className="font-roboto space-y-4 py-4 flex flex-col h-full bg-black text-white">
       <div className="px-3 py-2 flex-1">
         <Link href="/dashboard" className="flex items-center pl-3 mb-14">
+          <Image className="w-10 h-10 mr-2" src={logo} alt="SpaceStar" width={32} height={32} />
           <h1 className="text-2xl font-bold">SpaceStar</h1>
         </Link>
         <div className="space-y-1">
@@ -160,6 +170,20 @@ export function Sidebar() {
             </div>
           ))}
         </div>
+      </div>
+      
+      {/* Logout Button */}
+      <div className="px-3 mt-auto">
+        <button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-white hover:bg-white/10 rounded-lg transition text-zinc-400"
+        >
+          <div className="flex items-center flex-1">
+            <LogOut className="h-5 w-5 mr-3 text-white" />
+            {isLoggingOut ? "Logging out..." : "Logout"}
+          </div>
+        </button>
       </div>
     </div>
   );
