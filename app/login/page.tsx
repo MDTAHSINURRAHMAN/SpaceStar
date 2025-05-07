@@ -23,8 +23,9 @@ export default function LoginPage() {
       }, 100);
     } catch (err) {
       console.error("Login failed:", err);
+    
       if (err && typeof err === "object" && "data" in err) {
-        const errorData = err;
+        const errorData = err as { data?: { message?: string } };
         setError(errorData.data?.message || "Login failed");
       } else {
         setError("Login failed");
