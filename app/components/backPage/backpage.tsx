@@ -23,9 +23,9 @@ export function BackPage({ href, className = "" }: BackPageProps) {
 
   return (
     <Button
-      variant={buttonVariants({ variant: "spaceStarOutline" })}
+      variant="spaceStarOutline"
       onClick={handleBack}
-      className={`font-roboto flex items-center gap-2 ${className} font-normal text-gray-500 hover:shadow-sm rounded-full transition-all`}
+      className={`${buttonVariants({ variant: "spaceStarOutline" })} font-roboto flex items-center gap-2 ${className} font-normal text-gray-500 hover:shadow-sm rounded-full transition-all`}
     >
       <ArrowLeft className="h-4 w-4" />
       Back

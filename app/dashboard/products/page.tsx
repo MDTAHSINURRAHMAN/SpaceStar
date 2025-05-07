@@ -75,10 +75,9 @@ export default function ProductsPage() {
               </div>
               <div>
                 <Button
-                  variant={buttonVariants({ variant: "spaceStarOutline" })}
                   onClick={() => router.push("/dashboard/products/add-product")}
                   size="lg"
-                  className="font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all"
+                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
                 >
                   <Plus className="h-4 w-4" /> Add Product
                 </Button>

@@ -314,7 +314,7 @@ export default function AddOrderPage() {
                 <Button 
                   type="button" 
                   onClick={addItem} 
-                  variant={buttonVariants({ variant: "spaceStarOutline" })}
+                  variant="spaceStarOutline"
                   className="w-full font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 cursor-pointer"
                 >
                   Add Another Item

@@ -108,10 +108,10 @@ export default function ReviewsPage() {
               </div>
               <div>
                 <Button
-                  variant={buttonVariants({ variant: "spaceStarOutline" })}
+                  variant="spaceStarOutline"
                   onClick={handleAddReview}
                   size="lg"
-                  className="font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all"
+                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
                 >
                   <Plus className="h-4 w-4" /> Add Review
                 </Button>

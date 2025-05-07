@@ -482,7 +482,7 @@ export default function AddProductPage() {
                       {features.length > 1 && (
                         <Button
                           type="button"
-                          variant={buttonVariants({ variant: "spaceStarOutline" })}
+                          variant="spaceStarOutline"
                           onClick={() => removeFeatureField(index)}
                           className="mt-0 font-normal bg-red-500 text-white hover:shadow-sm rounded-full transition-all cursor-pointer"
                         >
@@ -493,9 +493,9 @@ export default function AddProductPage() {
                   ))}
                   <Button
                     type="button"
-                    variant={buttonVariants({ variant: "spaceStarOutline" })}
+                    variant="spaceStarOutline"
                     onClick={addFeatureField}
-                    className="mt-2 font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                    className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700`}
                   >
                     Add Another Feature
                   </Button>
@@ -583,7 +583,7 @@ export default function AddProductPage() {
                       {sizes.length > 1 && (
                         <Button
                           type="button"
-                          variant={buttonVariants({ variant: "spaceStarOutline" })}
+                          variant="spaceStarOutline"
                           onClick={() => removeSizeField(index)}
                           className="mt-0 font-normal bg-red-500 text-white hover:shadow-sm rounded-full transition-all cursor-pointer"
                         >
@@ -594,9 +594,9 @@ export default function AddProductPage() {
                   ))}
                   <Button
                     type="button"
-                    variant={buttonVariants({ variant: "spaceStarOutline" })}
+                    variant="spaceStarOutline"
                     onClick={addSizeField}
-                    className="mt-2 font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                    className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700`}
                   >
                     Add Another Size
                   </Button>
@@ -628,7 +628,7 @@ export default function AddProductPage() {
                       {colors.length > 1 && (
                         <Button
                           type="button"
-                          variant={buttonVariants({ variant: "spaceStarOutline" })}
+                          variant="spaceStarOutline"
                           onClick={() => removeColorField(index)}
                           className="mt-0 font-normal bg-red-500 text-white hover:shadow-sm rounded-full transition-all cursor-pointer"
                         >
@@ -639,9 +639,9 @@ export default function AddProductPage() {
                   ))}
                   <Button
                     type="button"
-                    variant={buttonVariants({ variant: "spaceStarOutline" })}
+                    variant="spaceStarOutline"
                     onClick={addColorField}
-                    className="mt-2 font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                    className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700`}
                   >
                     Add Another Color
                   </Button>
