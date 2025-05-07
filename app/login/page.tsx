@@ -34,7 +34,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="font-roboto flex flex-col items-center justify-center p-4 min-h-screen">
+    <div className="font-roboto flex flex-col items-center justify-center p-4">
       {isRedirecting ? (
         <div className="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50">
           <div className="flex items-center justify-center">
