@@ -103,7 +103,7 @@ export default function OrdersPage() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by customer name, email, phone or status..."
+                  placeholder="Search by first name, last name, city, email, phone, address, discount code"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-transparent rounded-full"
@@ -114,7 +114,9 @@ export default function OrdersPage() {
                   variant="spaceStarOutline"
                   onClick={handleAddOrder}
                   size="lg"
-                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
+                  className={`${buttonVariants({
+                    variant: "spaceStarOutline",
+                  })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
                 >
                   <Plus className="h-4 w-4" /> Add Order
                 </Button>
@@ -126,14 +128,29 @@ export default function OrdersPage() {
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="font-normal text-gray-500">
-                      Customer
+                      First Name
                     </TableHead>
                     <TableHead className="font-normal text-gray-500">
+                      Last Name
+                    </TableHead>
+                    <TableHead className="font-normal text-gray-500">
+                      City
+                    </TableHead>
+                    {/* <TableHead className="font-normal text-gray-500">
+                      Postal Code
+                    </TableHead>
+                    <TableHead className="font-normal text-gray-500">
+                      Note
+                    </TableHead> */}
+                    <TableHead className="font-normal text-gray-500">
+                      Discount Code
+                    </TableHead>
+                    {/* <TableHead className="font-normal text-gray-500">
                       Email
-                    </TableHead>
-                    <TableHead className="font-normal text-gray-500">
+                    </TableHead> */}
+                    {/* <TableHead className="font-normal text-gray-500">
                       Number
-                    </TableHead>
+                    </TableHead> */}
                     <TableHead className="font-normal text-gray-500">
                       Address
                     </TableHead>
@@ -159,11 +176,26 @@ export default function OrdersPage() {
                       className="hover:bg-muted/30 transition-colors"
                     >
                       <TableCell className="font-semibold text-gray-700">
-                        {order.customer.name || "No name provided"}
+                        {order.customer.firstName || "No first name"}
                       </TableCell>
                       <TableCell className="font-semibold text-gray-700">
-                        {order.customer.email || "No email provided"}
+                        {order.customer.lastName || "No last name"}
                       </TableCell>
+                      <TableCell className="font-semibold text-gray-700">
+                        {order.customer.city || "No city"}
+                      </TableCell>
+                      {/* <TableCell className="font-semibold text-gray-700">
+                        {order.customer.postalCode || "No postal code"}
+                      </TableCell>
+                      <TableCell className="font-semibold text-gray-700">
+                        {order.customer.note || "-"}
+                      </TableCell> */}
+                      <TableCell className="font-semibold text-gray-700">
+                        {order.customer.discountCode || "-"}
+                      </TableCell>
+                      {/* <TableCell className="font-semibold text-gray-700">
+                        {order.customer.email || "No email provided"}
+                      </TableCell> */}
                       <TableCell className="font-semibold text-gray-700">
                         {order.customer.phone || "No phone provided"}
                       </TableCell>

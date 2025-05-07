@@ -1,10 +1,15 @@
 export interface Order {
     _id: string;
     customer: {
-      name: string;
-      email: string;
+      firstName: string;
+      lastName: string;
       phone: string;
+      email: string;
       address: string;
+      city: string;
+      postalCode: number;
+      note?: string;
+      discountCode?: string;
     };
     items: {
       name: string;

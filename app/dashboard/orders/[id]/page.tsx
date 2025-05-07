@@ -9,7 +9,7 @@ import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
 import { Header } from "@/app/components/header/Header";
 import { toast } from "sonner";
-import { Edit } from "lucide-react";
+import { Edit, Mail, Phone, MapPin, User, Tag, StickyNote } from "lucide-react";
 
 export default function OrderDetailsPage() {
   const params = useParams();
@@ -79,41 +79,77 @@ export default function OrderDetailsPage() {
             <CardHeader>
               <CardTitle className="text-xl">Customer Information</CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Name</h4>
-                <p className="text-gray-800">{order.customer.name}</p>
+            <CardContent className="p-6 space-y-6 bg-gray-50 rounded-b-lg">
+              <div className="mb-4">
+                <h5 className="text-xs font-semibold text-gray-400 uppercase mb-2">
+                  Name
+                </h5>
+                <div className="flex items-center gap-2 text-gray-800">
+                  <User className="h-4 w-4 text-gray-500" />
+                  <span>
+                    {order.customer.firstName} {order.customer.lastName}
+                  </span>
+                </div>
+              </div>
+              <div className="mb-4">
+                <h5 className="text-xs font-semibold text-gray-400 uppercase mb-2">
+                  Contact
+                </h5>
+                <div className="flex items-center gap-2 text-gray-800 mb-1">
+                  <Mail className="h-4 w-4 text-gray-500" />
+                  <span>{order.customer.email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-800 mb-1">
+                  <Phone className="h-4 w-4 text-gray-500" />
+                  <span>{order.customer.phone}</span>
+                </div>
+              </div>
+              <div className="mb-4">
+                <h5 className="text-xs font-semibold text-gray-400 uppercase mb-2">
+                  Address
+                </h5>
+                <div className="flex items-center gap-2 text-gray-800 mb-1">
+                  <MapPin className="h-4 w-4 text-gray-500" />
+                  <span>
+                    {order.customer.address}, {order.customer.city},{" "}
+                    {order.customer.postalCode}
+                  </span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="flex items-center gap-2 text-gray-800">
+                  <StickyNote className="h-4 w-4 text-gray-500" />
+                  <span className="truncate">{order.customer.note || "-"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-800">
+                  <Tag className="h-4 w-4 text-gray-500" />
+                  <span>{order.customer.discountCode || "-"}</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <h5 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                    Order ID
+                  </h5>
+                  <span className="text-gray-700 text-sm">{order._id}</span>
+                </div>
+                <div>
+                  <h5 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                    Order Date
+                  </h5>
+                  <span className="text-gray-700 text-sm">
+                    {new Date(order.createdAt).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500">Email</h4>
-                <p className="text-gray-800">{order.customer.email}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Phone</h4>
-                <p className="text-gray-800">{order.customer.phone}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Address</h4>
-                <p className="text-gray-800">{order.customer.address}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Order ID</h4>
-                <p className="text-gray-800">{order._id}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">
-                  Order Date
-                </h4>
-                <p className="text-gray-800">
-                  {new Date(order.createdAt).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500">Status</h4>
+                <h5 className="text-xs font-semibold text-gray-400 uppercase mb-1">
+                  Status
+                </h5>
                 <Badge
                   className={`${getStatusColor(
                     order.status
@@ -131,28 +167,54 @@ export default function OrderDetailsPage() {
               <CardHeader>
                 <CardTitle className="text-xl">Order Items</CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                {order.items.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between text-gray-800"
-                  >
-                    <span>
-                      {item.name} x {item.quantity}
-                    </span>
-                    <span>${(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
-                <div className="border-t pt-4 mt-4">
-                  <div className="flex justify-between font-semibold text-lg text-gray-900">
-                    <span>Total</span>
-                    <span>${order.totalAmount.toFixed(2)}</span>
+              <CardContent className="p-6 bg-gray-50 rounded-b-lg">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm border rounded-lg overflow-hidden">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                          Product
+                        </th>
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                          Quantity
+                        </th>
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                          Price
+                        </th>
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                          Subtotal
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {order.items.map((item, index) => (
+                        <tr key={index} className="border-b last:border-b-0">
+                          <td className="px-4 py-2 text-gray-800">
+                            {item.name}
+                          </td>
+                          <td className="px-4 py-2 text-gray-800">
+                            {item.quantity}
+                          </td>
+                          <td className="px-4 py-2 text-gray-800">
+                            ${item.price.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-2 text-gray-800 font-semibold">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="border-t pt-4 mt-6 flex justify-end">
+                  <div className="bg-green-100 text-green-800 rounded-lg px-6 py-3 text-lg font-bold shadow-sm">
+                    Total: ${order.totalAmount.toFixed(2)}
                   </div>
                 </div>
               </CardContent>
             </div>
 
-            <div className="flex justify-end gap-4 p-6 border-t mt-auto">
+            <div className="flex justify-end gap-4 p-6 border-t mt-auto bg-white rounded-b-lg">
               <Button
                 onClick={() =>
                   router.push(`/dashboard/orders/${order._id}/edit-order`)
