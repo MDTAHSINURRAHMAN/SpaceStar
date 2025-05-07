@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import {FormEvent, useState } from "react";
 import { useLoginMutation } from "@/lib/api/loginApi";
 
 export default function LoginPage() {
@@ -11,15 +11,13 @@ export default function LoginPage() {
   const [login, { isLoading }] = useLoginMutation();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
       const result = await login(form).unwrap();
-      
-      // Show redirect animation
       setIsRedirecting(true);
-      
+  
       setTimeout(() => {
         router.replace("/dashboard/banner");
       }, 100);
