@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -23,6 +23,7 @@ import { BackPage } from "@/app/components/backPage/backpage";
 import {
   useGetProductQuery,
   useUpdateProductMutation,
+  useUploadChartImageMutation,
 } from "@/lib/api/productApi";
 import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
@@ -90,11 +91,11 @@ export default function EditProductPage() {
   const [colors, setColors] = useState<string[]>([""]);
   const [features, setFeatures] = useState<string[]>([""]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [chartImage, setChartImage] = useState<File | null>(null);
 
   const {
     data: product,
     isLoading,
-    error,
     refetch,
   } = useGetProductQuery(id as string);
 
@@ -265,6 +266,7 @@ export default function EditProductPage() {
     }
   };
   const [updateProduct] = useUpdateProductMutation();
+  const [uploadChartImage] = useUploadChartImageMutation();
 
   async function onSubmit(values: z.infer<typeof productSchema>) {
     try {
@@ -309,7 +311,11 @@ export default function EditProductPage() {
       });
 
       await updateProduct({ id: id as string, formData }).unwrap();
-
+      if (chartImage) {
+        const chartFormData = new FormData();
+        chartFormData.append("chartImage", chartImage);
+        await uploadChartImage({ id: id as string, formData: chartFormData });
+      }
       toast.success("Product updated successfully");
       refetch();
       router.push("/dashboard/products");
@@ -804,6 +810,29 @@ export default function EditProductPage() {
                       </Button>
                     )}
                   </div>
+                </div>
+
+                {/* Chart Image Upload */}
+                <div className="">
+                  <h3 className="text-lg font-medium mb-4">Chart Image</h3>
+                  {product?.chartImage && (
+                    <div className="mb-2">
+                      <img
+                        src={product.chartImage}
+                        alt="Chart"
+                        className="h-32 w-auto object-contain border rounded"
+                      />
+                    </div>
+                  )}
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setChartImage(e.target.files[0]);
+                      }
+                    }}
+                  />
                 </div>
                 <Button
                   variant="spaceStarOutline"

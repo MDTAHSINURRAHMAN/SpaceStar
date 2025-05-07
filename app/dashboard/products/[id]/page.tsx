@@ -6,7 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Edit } from "lucide-react";
-import { useGetProductQuery, useDeleteProductMutation } from "@/lib/api/productApi";
+import {
+  useGetProductQuery,
+  useDeleteProductMutation,
+} from "@/lib/api/productApi";
 import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
 import { Header } from "../../../components/header/Header";
@@ -15,7 +18,7 @@ import { toast } from "sonner";
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { data: product, isLoading, error } = useGetProductQuery(id as string);
+  const { data: product, isLoading } = useGetProductQuery(id as string);
   const [deleteProduct] = useDeleteProductMutation();
 
   const handleDelete = async (id: string) => {
@@ -36,7 +39,7 @@ export default function ProductDetailsPage() {
     );
   }
 
-  if (error || !product) {
+  if (!product) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen">
         <h2 className="text-xl font-semibold text-gray-800">
@@ -112,6 +115,30 @@ export default function ProductDetailsPage() {
                   </div>
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Chart Image (Left, below product images) */}
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle>Chart Image</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {product.chartImage ? (
+                <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-200">
+                  <Image
+                    src={product.chartImage}
+                    alt={`${product.name} Chart`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-video bg-gray-50 flex items-center justify-center rounded-lg border border-dashed border-gray-300">
+                  <p className="text-gray-500">No chart image available</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

@@ -9,7 +9,10 @@ export const productApi = createApi({
   }),
   tagTypes: ["Product"],
   endpoints: (builder) => ({
-    getAllProducts: builder.query<Product[], { search?: string; category?: string } | void>({
+    getAllProducts: builder.query<
+      Product[],
+      { search?: string; category?: string } | void
+    >({
       query: (params) => {
         if (!params) return "/api/products";
         const query = new URLSearchParams(params).toString();
@@ -29,7 +32,10 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Product"],
     }),
-    updateProduct: builder.mutation<Product, { id: string; formData: FormData }>({
+    updateProduct: builder.mutation<
+      Product,
+      { id: string; formData: FormData }
+    >({
       query: ({ id, formData }) => ({
         url: `/api/products/${id}`,
         method: "PUT",
@@ -44,6 +50,17 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["Product"],
     }),
+    uploadChartImage: builder.mutation<
+      { chartImage: string },
+      { id: string; formData: FormData }
+    >({
+      query: ({ id, formData }) => ({
+        url: `/api/products/${id}/chart-image`,
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "Product", id }],
+    }),
   }),
 });
 
@@ -53,4 +70,5 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useUploadChartImageMutation,
 } = productApi;

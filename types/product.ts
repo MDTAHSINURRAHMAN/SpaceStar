@@ -9,6 +9,7 @@ export interface Product {
   category: string;
   stock: number;
   images: string[];
+  chartImage: string;
   isPreOrder: boolean;
   sizes: string[];
   colors: string[];
