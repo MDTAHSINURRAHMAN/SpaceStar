@@ -675,7 +675,7 @@ export default function AddProductPage() {
                       {images.length > 1 && (
                         <Button
                           type="button"
-                          variant={buttonVariants({ variant: "spaceStarOutline" })}
+                          variant="spaceStarOutline"
                           onClick={() => removeImageField(index)}
                           className="mt-0 font-normal bg-red-500 text-white hover:shadow-sm rounded-full transition-all cursor-pointer"
                         >
@@ -687,9 +687,9 @@ export default function AddProductPage() {
                   {images.length < 5 && (
                     <Button
                       type="button"
-                      variant={buttonVariants({ variant: "spaceStarOutline" })}
+                      variant="spaceStarOutline"
                       onClick={addImageField}
-                      className="mt-2 font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                      className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700`}
                     >
                       Add Another Image
                     </Button>
@@ -697,7 +697,7 @@ export default function AddProductPage() {
                 </div>
               </div>
 
-              <Button variant={buttonVariants({ variant: "spaceStarOutline" })} type="submit" disabled={isLoading} className="w-full font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 mb-10">
+              <Button variant="spaceStarOutline" type="submit" disabled={isLoading} className="w-full font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 mb-10">
                 {isLoading ? "Creating..." : "Create Product"}
               </Button>
             </form>
