@@ -98,9 +98,9 @@ export default function OrdersPage() {
         <div className="font-roboto">
           <Header pageName="Orders" />
 
-          <div className="px-10 mt-4 space-y-4">
-            <div className="flex items-center space-x-4 backdrop-blur rounded-full">
-              <div className="relative flex-1">
+          <div className="w-2/3 mx-auto mt-8 space-y-4">
+            <div className="grid grid-cols-2 gap-4 backdrop-blur rounded-full">
+              <div className="relative flex-1 border border-gray-500 rounded-full">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by first name, last name, city, email, phone, address, discount code"
@@ -109,14 +109,14 @@ export default function OrdersPage() {
                   className="pl-10 bg-transparent rounded-full"
                 />
               </div>
-              <div>
+              <div className="flex justify-end">
                 <Button
                   variant="spaceStarOutline"
                   onClick={handleAddOrder}
                   size="lg"
                   className={`${buttonVariants({
                     variant: "spaceStarOutline",
-                  })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
+                  })} font-normal text-gray-700 hover:shadow-md border border-gray-500 rounded-full transition-all`}
                 >
                   <Plus className="h-4 w-4" /> Add Order
                 </Button>
@@ -175,13 +175,13 @@ export default function OrdersPage() {
                       key={order._id}
                       className="hover:bg-muted/30 transition-colors"
                     >
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {order.customer.firstName || "No first name"}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {order.customer.lastName || "No last name"}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {order.customer.city || "No city"}
                       </TableCell>
                       {/* <TableCell className="font-semibold text-gray-700">
@@ -190,19 +190,19 @@ export default function OrdersPage() {
                       <TableCell className="font-semibold text-gray-700">
                         {order.customer.note || "-"}
                       </TableCell> */}
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {order.customer.discountCode || "-"}
                       </TableCell>
                       {/* <TableCell className="font-semibold text-gray-700">
                         {order.customer.email || "No email provided"}
                       </TableCell> */}
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {order.customer.phone || "No phone provided"}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {order.customer.address || "No address provided"}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700 text-sm space-y-1">
+                      <TableCell className="font-semibold text-gray-600 text-sm space-y-1">
                         {order.items.length > 0 ? (
                           order.items.map((item) => (
                             <div key={item.name}>
@@ -214,7 +214,7 @@ export default function OrdersPage() {
                           <div>No items</div>
                         )}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         ${(order.totalAmount || 0).toFixed(2)}
                       </TableCell>
                       <TableCell>
@@ -228,7 +228,7 @@ export default function OrdersPage() {
                           {order.status || "Unknown"}
                         </span>
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {order.createdAt
                           ? new Date(order.createdAt).toLocaleDateString()
                           : "No date"}

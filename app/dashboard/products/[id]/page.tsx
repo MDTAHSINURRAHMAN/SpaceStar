@@ -14,6 +14,7 @@ import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
 import { Header } from "../../../components/header/Header";
 import { toast } from "sonner";
+import { ProductsPageContent } from "@/app/components/ProductsPageContent";
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
@@ -81,10 +82,19 @@ export default function ProductDetailsPage() {
     updatedAt,
   } = product;
 
+  // Convert single items to arrays if needed
+  const imagesArray = Array.isArray(images) ? images : images ? [images] : [];
+  const featuresArray = Array.isArray(features) ? features : features ? [features] : [];
+  const sizesArray = Array.isArray(sizes) ? sizes : sizes ? [sizes] : [];
+  const colorsArray = Array.isArray(colors) ? colors : colors ? [colors] : [];
+
   return (
     <RequireAuth>
-      <Header pageName="Product Details" />
-      <div className="container mx-auto px-4 py-8">
+      <ProductsPageContent>
+      <div className="w-full">
+        <Header pageName="Product Details" />
+      </div>
+      <div className="w-2/3 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column: Product Images and Chart Image stacked */}
           <div className="flex flex-col gap-8">
@@ -93,10 +103,10 @@ export default function ProductDetailsPage() {
               <CardHeader className="">
                 <CardTitle>Product Images</CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="">
                 <div className="grid grid-cols-2 gap-4">
-                  {images?.length ? (
-                    images.map((url, index) => (
+                  {imagesArray?.length ? (
+                    imagesArray.map((url, index) => (
                       <div
                         key={index}
                         className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 hover:border-primary transition-colors"
@@ -200,13 +210,13 @@ export default function ProductDetailsPage() {
                     <p className="mt-1 text-gray-700">{designer}</p>
                   </div>
                 )}
-                {features?.length > 0 && (
+                {featuresArray?.length > 0 && (
                   <div>
                     <h4 className="text-sm font-medium text-gray-500">
                       Key Features
                     </h4>
                     <ul className="mt-1 list-disc pl-5 space-y-1">
-                      {features.map((feature, index) => (
+                      {featuresArray.map((feature, index) => (
                         <li key={index} className="text-gray-700">
                           {feature}
                         </li>
@@ -233,8 +243,8 @@ export default function ProductDetailsPage() {
                     Available Sizes
                   </h4>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {sizes?.length ? (
-                      sizes.map((size, index) => (
+                    {sizesArray?.length ? (
+                      sizesArray.map((size, index) => (
                         <Badge
                           key={index}
                           variant="outline"
@@ -253,8 +263,8 @@ export default function ProductDetailsPage() {
                     Available Colors
                   </h4>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {colors?.length ? (
-                      colors.map((color, index) => (
+                    {colorsArray?.length ? (
+                      colorsArray.map((color, index) => (
                         <Badge
                           key={index}
                           variant="outline"
@@ -344,6 +354,8 @@ export default function ProductDetailsPage() {
           </Card>
         </div>
       </div>
+      </ProductsPageContent>
+      
     </RequireAuth>
   );
 }

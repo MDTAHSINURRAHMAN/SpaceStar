@@ -7,7 +7,7 @@ export const productApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
     credentials: "include",
   }),
-  tagTypes: ["Product"],
+  tagTypes: ["Product", "Category"],
   endpoints: (builder) => ({
     getAllProducts: builder.query<
       Product[],
@@ -61,6 +61,9 @@ export const productApi = createApi({
       }),
       invalidatesTags: (result, error, { id }) => [{ type: "Product", id }],
     }),
+    getAllCategories: builder.query<string[], void>({
+      query: () => "/api/products/categories",
+    }),
   }),
 });
 
@@ -71,4 +74,5 @@ export const {
   useUpdateProductMutation,
   useDeleteProductMutation,
   useUploadChartImageMutation,
+  useGetAllCategoriesQuery,
 } = productApi;

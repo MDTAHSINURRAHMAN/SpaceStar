@@ -23,6 +23,7 @@ import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
 import { Header } from "@/app/components/header/Header";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function BannerPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -86,7 +87,7 @@ export default function BannerPage() {
           <Header pageName="Banner" />
         </div>
 
-        <Card className="px-4">
+        <Card className="w-2/3 mx-auto mt-8">
           <CardContent className="">
             {banner?.imageUrl ? (
               <div className="relative h-[350px] w-full rounded-md overflow-hidden">
@@ -106,13 +107,13 @@ export default function BannerPage() {
               </div>
             )}
           </CardContent>
-          <CardFooter>
+          <CardFooter className="">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
                   variant="spaceStarOutline"
                   size="lg"
-                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
+                  className={`${cn(buttonVariants({ variant: "spaceStarOutline" }))} w-2/3 font-normal text-gray-700 hover:shadow-md rounded-full transition-all`}
                   disabled={isUpdating}
                 >
                   <Upload className="h-4 w-4" /> Update Banner
@@ -148,11 +149,11 @@ export default function BannerPage() {
                       onChange={handleFileChange}
                     />
                   </div>
-                  <div className="flex justify-end gap-3">
+                  <div className="flex gap-3">
                     <Button
                       onClick={resetDialog}
                       size="lg"
-                      className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-white hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
+                      className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal bg-red-500 text-white hover:shadow-sm border border-gray-500 rounded-full transition-all`}
                     >
                       Cancel
                     </Button>
@@ -160,7 +161,7 @@ export default function BannerPage() {
                       variant="spaceStarOutline"
                       onClick={handleUpdateBanner}
                       size="lg"
-                      className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
+                      className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-md border border-gray-500 rounded-full transition-all`}
                       disabled={isUpdating}
                     >
                       {isUpdating ? "Updating..." : "Update"}

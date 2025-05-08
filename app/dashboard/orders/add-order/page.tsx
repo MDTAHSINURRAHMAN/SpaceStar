@@ -79,6 +79,8 @@ export default function AddOrderPage() {
     updatedAt: new Date().toISOString(),
   });
 
+  const [formErrors, setFormErrors] = useState<{ [key: string]: boolean }>({});
+
   const handleCustomerChange = (
     field: keyof typeof formData.customer,
     value: string | number
@@ -137,8 +139,35 @@ export default function AddOrderPage() {
     );
   };
 
+  const validateForm = () => {
+    const errors: { [key: string]: boolean } = {};
+    // Customer fields
+    if (!formData.customer.firstName.trim()) errors.firstName = true;
+    if (!formData.customer.lastName.trim()) errors.lastName = true;
+    if (!formData.customer.city.trim()) errors.city = true;
+    if (!formData.customer.postalCode) errors.postalCode = true;
+    if (!formData.customer.phone.trim()) errors.phone = true;
+    if (!formData.customer.email.trim()) errors.email = true;
+    if (!formData.customer.address.trim()) errors.address = true;
+    // Items
+    formData.items.forEach((item, idx) => {
+      if (!item.name.trim()) errors[`itemName${idx}`] = true;
+      if (!item.quantity || item.quantity < 1)
+        errors[`itemQuantity${idx}`] = true;
+      if (item.price === undefined || item.price === null || item.price < 0)
+        errors[`itemPrice${idx}`] = true;
+    });
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors = validateForm();
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      toast.error("Please fill all required fields correctly.");
+      return;
+    }
     try {
       await createOrder({
         ...formData,
@@ -172,7 +201,7 @@ export default function AddOrderPage() {
             <Header pageName="Add Order" />
           </div>
 
-          <div className="px-4 mt-4">
+          <div className="w-2/3 mx-auto mt-8">
             <Card>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -183,11 +212,19 @@ export default function AddOrderPage() {
                       <Input
                         id="firstName"
                         value={formData.customer.firstName}
-                        onChange={(e) =>
-                          handleCustomerChange("firstName", e.target.value)
-                        }
+                        onChange={(e) => {
+                          handleCustomerChange("firstName", e.target.value);
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            firstName: false,
+                          }));
+                        }}
                         placeholder="Enter first name"
                         required
+                        aria-invalid={formErrors.firstName ? "true" : undefined}
+                        className={
+                          formErrors.firstName ? "!border-red-500" : ""
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -195,11 +232,17 @@ export default function AddOrderPage() {
                       <Input
                         id="lastName"
                         value={formData.customer.lastName}
-                        onChange={(e) =>
-                          handleCustomerChange("lastName", e.target.value)
-                        }
+                        onChange={(e) => {
+                          handleCustomerChange("lastName", e.target.value);
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            lastName: false,
+                          }));
+                        }}
                         placeholder="Enter last name"
                         required
+                        aria-invalid={formErrors.lastName ? "true" : undefined}
+                        className={formErrors.lastName ? "!border-red-500" : ""}
                       />
                     </div>
                     <div className="space-y-2">
@@ -207,11 +250,14 @@ export default function AddOrderPage() {
                       <Input
                         id="city"
                         value={formData.customer.city}
-                        onChange={(e) =>
-                          handleCustomerChange("city", e.target.value)
-                        }
+                        onChange={(e) => {
+                          handleCustomerChange("city", e.target.value);
+                          setFormErrors((prev) => ({ ...prev, city: false }));
+                        }}
                         placeholder="Enter city"
                         required
+                        aria-invalid={formErrors.city ? "true" : undefined}
+                        className={formErrors.city ? "!border-red-500" : ""}
                       />
                     </div>
                     <div className="space-y-2">
@@ -220,11 +266,21 @@ export default function AddOrderPage() {
                         id="postalCode"
                         type="number"
                         value={formData.customer.postalCode}
-                        onChange={(e) =>
-                          handleCustomerChange("postalCode", e.target.value)
-                        }
+                        onChange={(e) => {
+                          handleCustomerChange("postalCode", e.target.value);
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            postalCode: false,
+                          }));
+                        }}
                         placeholder="Enter postal code"
                         required
+                        aria-invalid={
+                          formErrors.postalCode ? "true" : undefined
+                        }
+                        className={
+                          formErrors.postalCode ? "!border-red-500" : ""
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -255,11 +311,14 @@ export default function AddOrderPage() {
                         id="customerEmail"
                         type="email"
                         value={formData.customer.email}
-                        onChange={(e) =>
-                          handleCustomerChange("email", e.target.value)
-                        }
+                        onChange={(e) => {
+                          handleCustomerChange("email", e.target.value);
+                          setFormErrors((prev) => ({ ...prev, email: false }));
+                        }}
                         placeholder="Enter customer email"
                         required
+                        aria-invalid={formErrors.email ? "true" : undefined}
+                        className={formErrors.email ? "!border-red-500" : ""}
                       />
                     </div>
                     <div className="space-y-2">
@@ -268,11 +327,14 @@ export default function AddOrderPage() {
                         id="customerPhone"
                         type="tel"
                         value={formData.customer.phone}
-                        onChange={(e) =>
-                          handleCustomerChange("phone", e.target.value)
-                        }
+                        onChange={(e) => {
+                          handleCustomerChange("phone", e.target.value);
+                          setFormErrors((prev) => ({ ...prev, phone: false }));
+                        }}
                         placeholder="Enter customer phone"
                         required
+                        aria-invalid={formErrors.phone ? "true" : undefined}
+                        className={formErrors.phone ? "!border-red-500" : ""}
                       />
                     </div>
                     <div className="space-y-2">
@@ -280,11 +342,17 @@ export default function AddOrderPage() {
                       <Input
                         id="customerAddress"
                         value={formData.customer.address}
-                        onChange={(e) =>
-                          handleCustomerChange("address", e.target.value)
-                        }
+                        onChange={(e) => {
+                          handleCustomerChange("address", e.target.value);
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            address: false,
+                          }));
+                        }}
                         placeholder="Enter shipping address"
                         required
+                        aria-invalid={formErrors.address ? "true" : undefined}
+                        className={formErrors.address ? "!border-red-500" : ""}
                       />
                     </div>
                     <div className="space-y-2">
@@ -299,7 +367,18 @@ export default function AddOrderPage() {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select order status" />
+                          <SelectValue
+                            placeholder="Select order status"
+                            children={(() => {
+                              const entry = Object.entries(ORDER_STATUSES).find(
+                                ([, v]) => v === formData.status
+                              );
+                              return entry
+                                ? entry[0].charAt(0) +
+                                    entry[0].slice(1).toLowerCase()
+                                : "Select order status";
+                            })()}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {Object.entries(ORDER_STATUSES).map(
@@ -324,7 +403,7 @@ export default function AddOrderPage() {
                           variant="spaceStarOutline"
                           type="submit"
                           disabled={isLoading}
-                          className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 cursor-pointer"
+                          className="font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700 cursor-pointer"
                         >
                           {isLoading ? "Creating..." : "Create Order"}
                         </Button>
@@ -340,11 +419,25 @@ export default function AddOrderPage() {
                           <Label>Product Name</Label>
                           <Input
                             value={item.name}
-                            onChange={(e) =>
-                              handleItemChange(index, "name", e.target.value)
-                            }
+                            onChange={(e) => {
+                              handleItemChange(index, "name", e.target.value);
+                              setFormErrors((prev) => ({
+                                ...prev,
+                                [`itemName${index}`]: false,
+                              }));
+                            }}
                             placeholder="Enter product name"
                             required
+                            aria-invalid={
+                              formErrors[`itemName${index}`]
+                                ? "true"
+                                : undefined
+                            }
+                            className={
+                              formErrors[`itemName${index}`]
+                                ? "!border-red-500"
+                                : ""
+                            }
                           />
                         </div>
 
@@ -354,16 +447,30 @@ export default function AddOrderPage() {
                             <Input
                               type="number"
                               value={item.quantity}
-                              onChange={(e) =>
+                              onChange={(e) => {
                                 handleItemChange(
                                   index,
                                   "quantity",
                                   parseInt(e.target.value)
-                                )
-                              }
+                                );
+                                setFormErrors((prev) => ({
+                                  ...prev,
+                                  [`itemQuantity${index}`]: false,
+                                }));
+                              }}
                               placeholder="Enter quantity"
                               min="1"
                               required
+                              aria-invalid={
+                                formErrors[`itemQuantity${index}`]
+                                  ? "true"
+                                  : undefined
+                              }
+                              className={
+                                formErrors[`itemQuantity${index}`]
+                                  ? "!border-red-500"
+                                  : ""
+                              }
                             />
                           </div>
 
@@ -372,17 +479,31 @@ export default function AddOrderPage() {
                             <Input
                               type="number"
                               value={item.price}
-                              onChange={(e) =>
+                              onChange={(e) => {
                                 handleItemChange(
                                   index,
                                   "price",
                                   parseFloat(e.target.value)
-                                )
-                              }
+                                );
+                                setFormErrors((prev) => ({
+                                  ...prev,
+                                  [`itemPrice${index}`]: false,
+                                }));
+                              }}
                               placeholder="Enter price"
                               min="0"
                               step="0.01"
                               required
+                              aria-invalid={
+                                formErrors[`itemPrice${index}`]
+                                  ? "true"
+                                  : undefined
+                              }
+                              className={
+                                formErrors[`itemPrice${index}`]
+                                  ? "!border-red-500"
+                                  : ""
+                              }
                             />
                           </div>
                         </div>
@@ -410,7 +531,7 @@ export default function AddOrderPage() {
                       type="button"
                       onClick={addItem}
                       variant="spaceStarOutline"
-                      className="w-full font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 cursor-pointer"
+                      className="w-1/2 font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700 cursor-pointer"
                     >
                       Add Another Item
                     </Button>

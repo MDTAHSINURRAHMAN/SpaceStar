@@ -93,7 +93,7 @@ export default function ReviewDetailsPage() {
         <div className="flex items-center gap-4">
           <Header pageName="Review Details" />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 px-4">
+        <div className="w-2/3 mx-auto mt-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left: Review Image */}
           <Card className="flex flex-col items-center min-h-[300px] pt-8">
             {/* <CardHeader>

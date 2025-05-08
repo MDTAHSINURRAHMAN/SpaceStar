@@ -62,9 +62,9 @@ export default function ProductsPage() {
             <Header pageName="Product" />
           </div>
 
-          <div className="px-10 mt-4 space-y-4">
-            <div className="flex items-center space-x-4 backdrop-blur rounded-full">
-              <div className="relative flex-1">
+          <div className="w-2/3 mx-auto mt-8 space-y-4">
+            <div className="grid grid-cols-2 gap-4 backdrop-blur rounded-full">
+              <div className="relative flex-1 border border-gray-500 rounded-full">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground rounded-full" />
                 <Input
                   placeholder="Search by name"
@@ -73,11 +73,12 @@ export default function ProductsPage() {
                   className="pl-10 bg-transparent rounded-full"
                 />
               </div>
-              <div>
+              <div className="flex justify-end">
                 <Button
+                  variant="spaceStarOutline"
                   onClick={() => router.push("/dashboard/products/add-product")}
                   size="lg"
-                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
+                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-md border border-gray-500 rounded-full transition-all`}
                 >
                   <Plus className="h-4 w-4" /> Add Product
                 </Button>
@@ -112,16 +113,16 @@ export default function ProductsPage() {
                       key={product._id}
                       className="hover:bg-muted/30 transition-colors"
                     >
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {product.name}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         {product.shortDescription}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         <span className="font-semibold">${product.price}</span>
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             product.stock > 10
@@ -134,7 +135,7 @@ export default function ProductsPage() {
                           {product.stock} in stock
                         </span>
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-700">
+                      <TableCell className="font-semibold text-gray-600">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                           {product.category}
                         </span>

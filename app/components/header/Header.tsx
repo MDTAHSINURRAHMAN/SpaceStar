@@ -9,9 +9,9 @@ export function Header({ pageName }: HeaderProps) {
   return (
     <div className="font-roboto w-full">
       <div className="w-full bg-white">
-        <div className="flex items-center p-4">
+        <div className="flex flex-col items-start pl-2 py-4 w-2/3 mx-auto gap-2">
           <BackPage />
-          <h1 className="text-3xl font-semibold text-gray-700 px-10 pl-4 tracking-wide">{pageName}</h1>
+          <h1 className="text-3xl font-semibold text-gray-700 pl-1 tracking-wide">{pageName}</h1>
         </div>
         <div className="ml-auto flex items-center space-x-4">
           {/* <Button variant="ghost" size="icon">

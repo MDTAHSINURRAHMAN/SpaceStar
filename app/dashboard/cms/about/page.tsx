@@ -126,7 +126,7 @@ export default function AboutPage() {
         <div className="w-full">
           <Header pageName="About Page" />
         </div>
-        <div className="px-10 mt-4">
+        <div className="w-2/3 mx-auto mt-8">
           {!about && !isEditing && (
             <Card className="mb-6 border-none shadow-none">
               <CardContent>
@@ -234,11 +234,11 @@ export default function AboutPage() {
                       />
                     </div>
 
-                    <div className="flex gap-2 pt-4">
+                    <div className="gap-2 pt-4">
                       <Button 
                         onClick={handleSave}
                         variant="spaceStarOutline"
-                        className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                        className="w-1/3 font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700"
                       >
                         Save Changes
                       </Button>
@@ -248,7 +248,7 @@ export default function AboutPage() {
                           setIsEditing(false);
                           if (about) setFormData(about);
                         }}
-                        className="font-normal bg-red-500 text-white hover:shadow-sm rounded-full transition-all cursor-pointer"
+                        className="w-1/3 font-normal text-white bg-red-500 hover:shadow-md rounded-full transition-all cursor-pointer"
                       >
                         Cancel
                       </Button>
@@ -286,18 +286,18 @@ export default function AboutPage() {
                       <p className="text-gray-600">{about?.address}</p>
                     </div>
 
-                    <div className="flex gap-3 pt-2">
+                    <div className="gap-3 pt-2">
                       <Button 
                         onClick={() => setIsEditing(true)}
                         variant="spaceStarOutline"
-                        className="flex-1 font-medium hover:bg-blue-50 rounded-full transition-all border-2 border-gray-200 hover:border-gray-300 py-2"
+                        className="w-1/3 flex-1 font-medium text-gray-700 hover:bg-gray-50 hover:shadow-md rounded-full transition-all border-2 border-gray-500 hover:border-gray-500 py-2 mr-3"
                       >
                         Edit
                       </Button>
                       <Button 
                         variant="spaceStarOutline"
                         onClick={handleDelete}
-                        className="flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
+                        className="w-1/3 flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
                       >
                         Delete
                       </Button>

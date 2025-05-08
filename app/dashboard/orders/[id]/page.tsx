@@ -72,7 +72,7 @@ export default function OrderDetailsPage() {
   return (
     <RequireAuth>
       <Header pageName="Order Details" />
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-2/3 mx-auto mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Order Information */}
           <Card>

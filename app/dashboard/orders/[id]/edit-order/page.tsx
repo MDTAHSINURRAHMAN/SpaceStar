@@ -127,10 +127,7 @@ export default function EditOrderPage() {
           <Header pageName="Edit Order" />
         </div>
 
-        <Card className="px-4">
-          <CardHeader>
-            <CardTitle className="text-xl">Customer Information</CardTitle>
-          </CardHeader>
+        <Card className="w-2/3 mx-auto mt-8">
           <CardContent className="p-6 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -308,7 +305,7 @@ export default function EditOrderPage() {
                     variant="spaceStarOutline"
                     type="submit"
                     disabled={isUpdating}
-                    className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 mb-10"
+                    className="font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700 mb-10"
                   >
                     {isUpdating ? "Updating..." : "Update Order"}
                   </Button>

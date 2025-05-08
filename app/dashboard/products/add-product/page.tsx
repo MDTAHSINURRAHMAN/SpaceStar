@@ -28,6 +28,7 @@ import {
 import {
   useCreateProductMutation,
   useUploadChartImageMutation,
+  useGetAllCategoriesQuery,
 } from "@/lib/api/productApi";
 import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
@@ -57,22 +58,6 @@ const productSchema = z.object({
   isOnSale: z.boolean(),
   salePrice: z.string().optional(),
 });
-
-const PRODUCT_CATEGORIES = [
-  "T-Shirt",
-  "Hoodie",
-  "Jacket",
-  "Pants",
-  "Shorts",
-  "Socks",
-  "Accessories",
-  "Shoes",
-  "Bags",
-  "Hats",
-  "Sunglasses",
-  "Watches",
-  "Wallets",
-] as const;
 
 const DEFAULT_FORM_VALUES = {
   name: "",
@@ -105,6 +90,12 @@ export default function AddProductPage() {
   const [colors, setColors] = useState<string[]>([""]);
   const [features, setFeatures] = useState<string[]>([""]);
   const [chartImage, setChartImage] = useState<File | null>(null);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [localCategories, setLocalCategories] = useState<string[]>([]);
+  const { data: categories = [], isLoading: isCategoriesLoading } =
+    useGetAllCategoriesQuery();
+  const allCategories = [...new Set([...categories, ...localCategories])];
 
   const form = useForm({
     resolver: zodResolver(productSchema),
@@ -213,16 +204,12 @@ export default function AddProductPage() {
       values.sizes.forEach((size) => formData.append("sizes", size));
       values.colors.forEach((color) => formData.append("colors", color));
       values.images.forEach((image) => formData.append("images", image));
+      
+      if (chartImage) {
+        formData.append("chartImage", chartImage);
+      }
 
       const createdProduct = await createProduct(formData).unwrap();
-      if (chartImage) {
-        const chartFormData = new FormData();
-        chartFormData.append("chartImage", chartImage);
-        await uploadChartImage({
-          id: createdProduct._id,
-          formData: chartFormData,
-        });
-      }
       toast.success("Product created successfully");
       router.push("/dashboard/products");
     } catch (error: any) {
@@ -250,7 +237,7 @@ export default function AddProductPage() {
             <Header pageName="Add Product" />
           </div>
 
-          <div className="px-10 mt-4">
+          <div className="w-2/3 mx-auto mt-8">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -311,22 +298,74 @@ export default function AddProductPage() {
                         <FormItem>
                           <FormLabel>Category</FormLabel>
                           <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            onValueChange={(value) => {
+                              if (value === "__add_new__") {
+                                setIsAddingCategory(true);
+                                field.onChange("");
+                              } else {
+                                setIsAddingCategory(false);
+                                field.onChange(value);
+                              }
+                            }}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a category" />
+                                <SelectValue
+                                  placeholder={
+                                    isCategoriesLoading
+                                      ? "Loading..."
+                                      : "Select a category"
+                                  }
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {PRODUCT_CATEGORIES.map((category) => (
+                              {allCategories.map((category) => (
                                 <SelectItem key={category} value={category}>
                                   {category}
                                 </SelectItem>
                               ))}
+                              <SelectItem value="__add_new__">
+                                Add new category
+                              </SelectItem>
                             </SelectContent>
                           </Select>
+                          {isAddingCategory && (
+                            <div className="flex gap-2 mt-2">
+                              <Input
+                                placeholder="Enter new category"
+                                value={newCategory}
+                                onChange={(e) => setNewCategory(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              />
+                              <Button
+                                variant="spaceStarOutline"
+                                type="button"
+                                onClick={() => {
+                                  if (
+                                    newCategory &&
+                                    !allCategories.includes(newCategory.trim())
+                                  ) {
+                                    setLocalCategories((prev) => [
+                                      ...prev,
+                                      newCategory.trim(),
+                                    ]);
+                                    setIsAddingCategory(false);
+                                    setNewCategory("");
+                                  }
+                                }}
+                                disabled={!newCategory.trim()}
+                                className="border border-gray-500 text-gray-700 font-normal hover:shadow-md"
+                              >
+                                Add Category
+                              </Button>
+                            </div>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -513,7 +552,7 @@ export default function AddProductPage() {
                       onClick={addFeatureField}
                       className={`${buttonVariants({
                         variant: "spaceStarOutline",
-                      })} font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700`}
+                      })} font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700`}
                     >
                       Add Another Feature
                     </Button>
@@ -616,7 +655,7 @@ export default function AddProductPage() {
                       onClick={addSizeField}
                       className={`${buttonVariants({
                         variant: "spaceStarOutline",
-                      })} font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700`}
+                      })} font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700`}
                     >
                       Add Another Size
                     </Button>
@@ -663,7 +702,7 @@ export default function AddProductPage() {
                       onClick={addColorField}
                       className={`${buttonVariants({
                         variant: "spaceStarOutline",
-                      })} font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700`}
+                      })} font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700`}
                     >
                       Add Another Color
                     </Button>
@@ -714,7 +753,7 @@ export default function AddProductPage() {
                         onClick={addImageField}
                         className={`${buttonVariants({
                           variant: "spaceStarOutline",
-                        })} font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700`}
+                        })} font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700`}
                       >
                         Add Another Image
                       </Button>
@@ -740,7 +779,7 @@ export default function AddProductPage() {
                   variant="spaceStarOutline"
                   type="submit"
                   disabled={isLoading}
-                  className="w-full font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 mb-10"
+                  className="w-1/2 font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700 mb-10"
                 >
                   {isLoading ? "Creating..." : "Create Product"}
                 </Button>

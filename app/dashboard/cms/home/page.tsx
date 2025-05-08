@@ -32,11 +32,11 @@ const TextForm = ({ text, onChange, onSubmit, onCancel, submitLabel, showCancel 
       placeholder="Enter promotional text..."
       className="w-full"
     />
-    <div className="flex gap-2">
+    <div className="gap-2">
       <Button 
         variant="spaceStarOutline"
         onClick={onSubmit}
-        className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+        className="w-1/3 flex-1 font-medium text-gray-700 hover:bg-gray-50 rounded-full transition-all hover:shadow-md border-2 border-gray-500 hover:border-gray-500 py-2 mr-3"
       >
         {submitLabel}
       </Button>
@@ -44,7 +44,7 @@ const TextForm = ({ text, onChange, onSubmit, onCancel, submitLabel, showCancel 
         <Button 
           variant="spaceStarOutline" 
           onClick={onCancel}
-          className="font-normal bg-red-500 text-white hover:shadow-sm rounded-full transition-all cursor-pointer"
+          className="w-1/3 flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
         >
           Cancel
         </Button>
@@ -123,7 +123,7 @@ export default function HomePage() {
         <div className="w-full">
           <Header pageName="Home Page" />
         </div>
-        <div className="px-10 mt-4">
+        <div className="w-2/3 mx-auto mt-8">
           {!hasText && (
             <Card className="mb-6 border-none shadow-none">
               <CardContent>
@@ -158,21 +158,21 @@ export default function HomePage() {
                 ) : (
                   <div className="flex flex-col gap-4 p-6 rounded-lg shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                     <p className="text-lg text-gray-800 font-medium leading-relaxed p-4 bg-gray-50 rounded-md">{singleText.text}</p>
-                    <div className="flex gap-3 pt-2">
+                    <div className="pt-2">
                       <Button
                         variant="spaceStarOutline"
                         onClick={() => {
                           setIsEditing(true);
                           setEditText(singleText.text);
                         }}
-                        className="flex-1 font-medium hover:bg-blue-50 rounded-full transition-all border-2 border-gray-200 hover:border-gray-300 py-2"
+                        className="w-1/3 flex-1 font-medium text-gray-700 hover:bg-gray-50 rounded-full transition-all hover:shadow-md border-2 border-gray-500 hover:border-gray-500 py-2 mr-3	"
                       >
                         Edit
                       </Button>
                       <Button
                         variant="spaceStarOutline"
                         onClick={() => handleDelete(singleText._id)}
-                        className="flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
+                        className="w-1/3 flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
                       >
                         Delete
                       </Button>

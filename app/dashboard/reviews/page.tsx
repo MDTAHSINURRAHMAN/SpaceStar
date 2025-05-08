@@ -94,9 +94,9 @@ export default function ReviewsPage() {
         <div className="font-roboto">
           <Header pageName="Reviews" />
 
-          <div className="px-10 mt-4 space-y-4">
+          <div className="w-2/3 mx-auto mt-8">
             {/* Search + Add Review Bar */}
-            <div className="flex items-center space-x-4 backdrop-blur rounded-full">
+            <div className="grid grid-cols-2 gap-4 backdrop-blur rounded-full">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -106,12 +106,12 @@ export default function ReviewsPage() {
                   className="pl-10 bg-transparent rounded-full"
                 />
               </div>
-              <div>
+              <div className="flex justify-end">
                 <Button
                   variant="spaceStarOutline"
                   onClick={handleAddReview}
                   size="lg"
-                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-sm border border-gray-300/40 rounded-full transition-all`}
+                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-md border border-gray-500 rounded-full transition-all`}
                 >
                   <Plus className="h-4 w-4" /> Add Review
                 </Button>
@@ -119,7 +119,7 @@ export default function ReviewsPage() {
             </div>
 
             {/* Table */}
-            <div className="overflow-hidden">
+            <div className="overflow-hidden mt-4">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
@@ -141,17 +141,17 @@ export default function ReviewsPage() {
                     <TableHead className="w-[100px]"></TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className="">
                   {reviews.length > 0 ? (
                     reviews.map((review) => (
                       <TableRow
                         key={review._id}
                         className="hover:bg-muted/30 transition-colors"
                       >
-                        <TableCell className="font-semibold text-gray-700">
+                        <TableCell className="font-semibold text-gray-600">
                           {productMap[review.productId] || review.productId}
                         </TableCell>
-                        <TableCell className="font-semibold text-gray-700">
+                        <TableCell className="font-semibold text-gray-600">
                           {review.name}
                         </TableCell>
                         <TableCell>
@@ -159,10 +159,10 @@ export default function ReviewsPage() {
                             {renderStars(review.rating)}
                           </div>
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate text-gray-700">
+                        <TableCell className="max-w-[200px] truncate text-gray-600">
                           {review.review}
                         </TableCell>
-                        <TableCell className="font-semibold text-gray-700">
+                        <TableCell className="font-semibold text-gray-600">
                           {new Date(review.createdAt).toLocaleDateString()}
                         </TableCell>
                         <TableCell>

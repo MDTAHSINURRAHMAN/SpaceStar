@@ -133,7 +133,7 @@ export default function AddReviewPage() {
           <div className="w-full">
             <Header pageName="Add Review" />
           </div>
-          <div className="px-4 mt-4">
+          <div className="w-2/3 mx-auto mt-8">
             <Card>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -250,8 +250,8 @@ export default function AddReviewPage() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center pt-4">
-                    <Button value={buttonVariants({ variant: "spaceStarOutline" })} type="submit" disabled={isLoading} className="font-normal bg-transparent text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700">
-                      {isLoading ? "Adding..." : "Add Review"}
+                    <Button value={buttonVariants({ variant: "spaceStarOutline" })} type="submit" disabled={isLoading} className="w-1/2 font-normal bg-transparent text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700">
+                      {isLoading ? "Creating..." : "Create Review"}
                     </Button>
                   </div>
                 </form>

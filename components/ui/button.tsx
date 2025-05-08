@@ -20,7 +20,7 @@ export const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         spaceStarOutline:
-          "rounded-full bg-transparent px-5 py-2",
+          "rounded-full bg-transparent px-5 py-2 border border-gray-500",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

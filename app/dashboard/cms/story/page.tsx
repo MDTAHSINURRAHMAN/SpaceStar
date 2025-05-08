@@ -174,14 +174,14 @@ export default function StoryPage() {
         <div className="w-full">
           <Header pageName="Story Page" />
         </div>
-        <div className="px-10 mt-4">
+        <div className="w-2/3 mx-auto mt-8">
           {!stories?.length && !isCreating && (
             <Card className="mb-6 border-none shadow-none">
               <CardContent>
                 <Button 
                   onClick={() => setIsCreating(true)}
                   variant="spaceStarOutline"
-                  className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                  className="w-1/3 font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Story
@@ -330,18 +330,18 @@ function StoryCard({
             onAdd={onAddBlock}
             onRemove={onRemoveBlock}
           />
-          <div className="flex gap-3 pt-2">
+          <div className="gap-3 pt-2">
             <Button
               variant="spaceStarOutline"
               onClick={onUpdate}
-              className="flex-1 font-medium hover:bg-blue-50 rounded-full transition-all border-2 border-gray-200 hover:border-gray-300 py-2"
+              className="w-1/3 flex-1 font-medium text-gray-700 hover:bg-gray-50 hover:shadow-md rounded-full transition-all border-2 border-gray-500 hover:border-gray-500 py-2 mr-3"
             >
               Save
             </Button>
             <Button
               variant="spaceStarOutline"
               onClick={onCancel}
-              className="flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
+              className="w-1/3 flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
             >
               Cancel
             </Button>
@@ -355,18 +355,18 @@ function StoryCard({
               <p className="text-gray-700">{block.description}</p>
             </div>
           ))}
-          <div className="flex gap-3 pt-2">
+          <div className="gap-3 pt-2">
             <Button
               variant="spaceStarOutline"
               onClick={onEdit}
-              className="flex-1 font-medium hover:bg-blue-50 rounded-full transition-all border-2 border-gray-200 hover:border-gray-300 py-2"
+              className="w-1/3 flex-1 font-medium text-gray-700 hover:bg-gray-50 hover:shadow-md rounded-full transition-all border-2 border-gray-500 hover:border-gray-500 py-2 mr-3"
             >
               Edit
             </Button>
             <Button
               variant="spaceStarOutline"
               onClick={onDelete}
-              className="flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
+              className="w-1/3 flex-1 font-medium text-white bg-red-500 hover:bg-red-600 rounded-full transition-all shadow-sm hover:shadow-md"
             >
               Delete
             </Button>
@@ -417,7 +417,7 @@ function ContentBlockList({
         <Button
           variant="spaceStarOutline"
           onClick={onAdd}
-          className="font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+          className="font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Block
