@@ -113,7 +113,7 @@ export default function BannerPage() {
                 <Button
                   variant="spaceStarOutline"
                   size="lg"
-                  className={`${cn(buttonVariants({ variant: "spaceStarOutline" }))} w-2/3 font-normal text-gray-700 hover:shadow-md rounded-full transition-all`}
+                  className={`${cn(buttonVariants({ variant: "spaceStarOutline" }))} w-1/2 font-normal text-gray-700 hover:shadow-md rounded-full transition-all`}
                   disabled={isUpdating}
                 >
                   <Upload className="h-4 w-4" /> Update Banner
