@@ -82,6 +82,13 @@ const productSchema = z.object({
   salePrice: z.string().optional(),
 });
 
+// Helper to extract S3 key from signed URL
+function extractS3KeyFromUrl(url: string): string {
+  // Match 'products/...' with or without a leading slash, and always return without leading slash
+  const match = url.match(/\/?(products\/[^?]+)/);
+  return match ? match[1] : url.replace(/^\//, "");
+}
+
 export default function EditProductPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -91,7 +98,11 @@ export default function EditProductPage() {
   const [colors, setColors] = useState<string[]>([""]);
   const [features, setFeatures] = useState<string[]>([""]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [displayImages, setDisplayImages] = useState<string[]>([]);
   const [chartImage, setChartImage] = useState<File | null>(null);
+  const [existingChartImage, setExistingChartImage] = useState<string | null>(
+    null
+  );
 
   const {
     data: product,
@@ -133,9 +144,12 @@ export default function EditProductPage() {
         category: product.category || "",
         stock: product.stock?.toString() || "",
         images: product.images || [],
-        isPreOrder: product.isPreOrder || false,
-        isFeatured: product.isFeatured || false,
-        isOnSale: product.isOnSale || false,
+        isPreOrder:
+          typeof product.isPreOrder === "boolean" ? product.isPreOrder : false,
+        isFeatured:
+          typeof product.isFeatured === "boolean" ? product.isFeatured : false,
+        isOnSale:
+          typeof product.isOnSale === "boolean" ? product.isOnSale : false,
         salePrice: product.salePrice?.toString() || "",
         designer: product.designer || "",
         features: product.features || [""],
@@ -147,11 +161,15 @@ export default function EditProductPage() {
       });
 
       // Populate local states
-      setExistingImages(product.images || []);
+      setExistingImages((product.images || []).map(extractS3KeyFromUrl));
+      setDisplayImages(product.images || []);
       setImages([{ url: "" }]);
       setSizes(product.sizes || [""]);
       setColors(product.colors || [""]);
       setFeatures(product.features || [""]);
+      setExistingChartImage(
+        product.chartImage ? extractS3KeyFromUrl(product.chartImage) : null
+      );
     }
   }, [product, form]);
 
@@ -183,10 +201,10 @@ export default function EditProductPage() {
   };
 
   const removeExistingImage = (index: number) => {
-    const newExistingImages = existingImages.filter((_, i) => i !== index);
-    setExistingImages(newExistingImages);
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+    setDisplayImages((prev) => prev.filter((_, i) => i !== index));
     form.setValue("images", [
-      ...newExistingImages,
+      ...existingImages.filter((_, i) => i !== index),
       ...images.filter((img) => img.url !== ""),
     ]);
   };
@@ -303,6 +321,9 @@ export default function EditProductPage() {
       formData.append("colors", JSON.stringify(filteredColors));
       formData.append("features", JSON.stringify(filteredFeatures));
       formData.append("existingImages", JSON.stringify(existingImages));
+      if (existingChartImage) {
+        formData.append("existingChartImage", existingChartImage);
+      }
 
       images.forEach((image) => {
         if (image.file instanceof File) {
@@ -342,7 +363,7 @@ export default function EditProductPage() {
           <div className="w-full">
             <Header pageName="Edit Product" />
           </div>
-          <div className="px-10 mt-4">
+          <div className="w-2/3 mx-auto mt-8">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -592,7 +613,7 @@ export default function EditProductPage() {
                       type="button"
                       variant="spaceStarOutline"
                       onClick={addFeatureField}
-                      className="mt-2 font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                      className="mt-2 font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700"
                     >
                       Add Another Feature
                     </Button>
@@ -689,7 +710,7 @@ export default function EditProductPage() {
                       type="button"
                       variant="spaceStarOutline"
                       onClick={addSizeField}
-                      className="mt-2 font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700"
+                      className="mt-2 font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700"
                     >
                       Add Another Size
                     </Button>
@@ -746,9 +767,9 @@ export default function EditProductPage() {
                   <div className="space-y-4">
                     <FormLabel>Product Images (up to 5)</FormLabel>
                     {/* Existing Images */}
-                    {existingImages.length > 0 && (
+                    {displayImages.length > 0 && (
                       <div className="grid grid-cols-5 gap-2 mb-4">
-                        {existingImages.map((img, idx) => (
+                        {displayImages.map((img, idx) => (
                           <div key={idx} className="relative">
                             <img
                               src={img}
@@ -838,7 +859,7 @@ export default function EditProductPage() {
                   variant="spaceStarOutline"
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full font-normal text-gray-700 hover:shadow-sm rounded-full transition-all border border-gray-700 mb-10"
+                  className="w-1/2 font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700 mb-10"
                 >
                   {isSubmitting ? "Updating..." : "Update Product"}
                 </Button>
