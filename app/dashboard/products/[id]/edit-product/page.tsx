@@ -24,6 +24,7 @@ import {
   useGetProductQuery,
   useUpdateProductMutation,
   useUploadChartImageMutation,
+  useGetAllCategoriesQuery,
 } from "@/lib/api/productApi";
 import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
@@ -41,22 +42,6 @@ interface ProductImage {
   url: string;
   file?: File;
 }
-
-const PRODUCT_CATEGORIES = [
-  "T-Shirt",
-  "Hoodie",
-  "Jacket",
-  "Pants",
-  "Shorts",
-  "Socks",
-  "Accessories",
-  "Shoes",
-  "Bags",
-  "Hats",
-  "Sunglasses",
-  "Watches",
-  "Wallets",
-] as const;
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -109,6 +94,10 @@ export default function EditProductPage() {
     isLoading,
     refetch,
   } = useGetProductQuery(id as string);
+
+  // Fetch categories dynamically
+  const { data: categories = [], isLoading: isCategoriesLoading } =
+    useGetAllCategoriesQuery();
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -422,19 +411,31 @@ export default function EditProductPage() {
                           <FormLabel>Category</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a category" />
+                                <SelectValue
+                                  placeholder={
+                                    isCategoriesLoading
+                                      ? "Loading..."
+                                      : "Select a category"
+                                  }
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {PRODUCT_CATEGORIES.map((category) => (
-                                <SelectItem key={category} value={category}>
-                                  {category}
+                              {isCategoriesLoading ? (
+                                <SelectItem value="" disabled>
+                                  Loading...
                                 </SelectItem>
-                              ))}
+                              ) : (
+                                categories.map((category) => (
+                                  <SelectItem key={category} value={category}>
+                                    {category}
+                                  </SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
                           <FormMessage />
