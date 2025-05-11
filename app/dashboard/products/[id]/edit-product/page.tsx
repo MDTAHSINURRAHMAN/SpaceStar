@@ -278,12 +278,6 @@ export default function EditProductPage() {
   async function onSubmit(values: z.infer<typeof productSchema>) {
     try {
       setIsSubmitting(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("Not authorized");
-        router.push("/login");
-        return;
-      }
 
       const formData = new FormData();
       formData.append("name", values.name);
@@ -330,8 +324,13 @@ export default function EditProductPage() {
       refetch();
       router.push("/dashboard/products");
     } catch (error: any) {
-      console.error("Error updating product:", error);
-      toast.error(error?.data?.message || "Something went wrong");
+      if (error?.status === 401 || error?.status === 403) {
+        toast.error("Not authorized. Please log in again.");
+        router.push("/login");
+      } else {
+        console.error("Error updating product:", error);
+        toast.error(error?.data?.message || "Something went wrong");
+      }
     } finally {
       setIsSubmitting(false);
     }
