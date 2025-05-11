@@ -167,6 +167,28 @@ export default function EditProductPage() {
 
   useEffect(() => {
     if (product) {
+      // Defensive: always ensure array for features, sizes, colors, images
+      const safeFeatures = Array.isArray(product.features)
+        ? product.features
+        : product.features
+        ? [product.features]
+        : [""];
+      const safeSizes = Array.isArray(product.sizes)
+        ? product.sizes
+        : product.sizes
+        ? [product.sizes]
+        : [""];
+      const safeColors = Array.isArray(product.colors)
+        ? product.colors
+        : product.colors
+        ? [product.colors]
+        : [""];
+      const safeImages = Array.isArray(product.images)
+        ? product.images
+        : product.images
+        ? [product.images]
+        : [""];
+
       form.reset({
         name: product.name || "",
         shortDescription: product.shortDescription || "",
@@ -174,7 +196,7 @@ export default function EditProductPage() {
         price: product.price?.toString() || "",
         category: product.category || "",
         stock: product.stock?.toString() || "",
-        images: product.images || [],
+        images: safeImages,
         isPreOrder:
           typeof product.isPreOrder === "boolean" ? product.isPreOrder : false,
         isFeatured:
@@ -183,21 +205,21 @@ export default function EditProductPage() {
           typeof product.isOnSale === "boolean" ? product.isOnSale : false,
         salePrice: product.salePrice?.toString() || "",
         designer: product.designer || "",
-        features: product.features || [""],
-        sizes: product.sizes || [""],
-        colors: product.colors || [""],
+        features: safeFeatures,
+        sizes: safeSizes,
+        colors: safeColors,
         material: product.material || "",
         weight: product.weight || "",
         dimensions: product.dimensions || "",
       });
 
       // Populate local states
-      setExistingImages((product.images || []).map(extractS3KeyFromUrl));
-      setDisplayImages(product.images || []);
+      setExistingImages((safeImages || []).map(extractS3KeyFromUrl));
+      setDisplayImages(safeImages || []);
       setImages([{ url: "" }]);
-      setSizes(product.sizes || [""]);
-      setColors(product.colors || [""]);
-      setFeatures(product.features || [""]);
+      setSizes(safeSizes);
+      setColors(safeColors);
+      setFeatures(safeFeatures);
       setExistingChartImage(
         product.chartImage ? extractS3KeyFromUrl(product.chartImage) : null
       );
