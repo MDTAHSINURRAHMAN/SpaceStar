@@ -100,46 +100,46 @@ export default function EditProductPage() {
   const categories = Array.isArray(data) ? data : [];
 
   // Debug logs for .map variables
-  console.log(
-    "categories",
-    categories,
-    "typeof",
-    typeof categories,
-    "isArray",
-    Array.isArray(categories)
-  );
-  console.log(
-    "features",
-    features,
-    "typeof",
-    typeof features,
-    "isArray",
-    Array.isArray(features)
-  );
-  console.log(
-    "sizes",
-    sizes,
-    "typeof",
-    typeof sizes,
-    "isArray",
-    Array.isArray(sizes)
-  );
-  console.log(
-    "colors",
-    colors,
-    "typeof",
-    typeof colors,
-    "isArray",
-    Array.isArray(colors)
-  );
-  console.log(
-    "displayImages",
-    displayImages,
-    "typeof",
-    typeof displayImages,
-    "isArray",
-    Array.isArray(displayImages)
-  );
+  // console.log(
+  //   "categories",
+  //   categories,
+  //   "typeof",
+  //   typeof categories,
+  //   "isArray",
+  //   Array.isArray(categories)
+  // );
+  // console.log(
+  //   "features",
+  //   features,
+  //   "typeof",
+  //   typeof features,
+  //   "isArray",
+  //   Array.isArray(features)
+  // );
+  // console.log(
+  //   "sizes",
+  //   sizes,
+  //   "typeof",
+  //   typeof sizes,
+  //   "isArray",
+  //   Array.isArray(sizes)
+  // );
+  // console.log(
+  //   "colors",
+  //   colors,
+  //   "typeof",
+  //   typeof colors,
+  //   "isArray",
+  //   Array.isArray(colors)
+  // );
+  // console.log(
+  //   "displayImages",
+  //   displayImages,
+  //   "typeof",
+  //   typeof displayImages,
+  //   "isArray",
+  //   Array.isArray(displayImages)
+  // );
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -377,7 +377,7 @@ export default function EditProductPage() {
           formData.append("images", image.file);
         }
       });
-
+      console.log("formData", formData);
       await updateProduct({ id: id as string, formData }).unwrap();
       if (chartImage) {
         const chartFormData = new FormData();
@@ -900,7 +900,19 @@ export default function EditProductPage() {
                 {/* Chart Image Upload */}
                 <div className="">
                   <h3 className="text-lg font-medium mb-4">Chart Image</h3>
-                  {product?.chartImage && (
+                  {/* Show preview of new chart image if selected, else show existing chart image if available */}
+                  {chartImage ? (
+                    <div className="mb-2">
+                      <img
+                        src={URL.createObjectURL(chartImage)}
+                        alt="New Chart Preview"
+                        className="h-32 w-auto object-contain border rounded"
+                      />
+                      <div className="text-xs text-gray-500">
+                        Preview of new chart image
+                      </div>
+                    </div>
+                  ) : product?.chartImage ? (
                     <div className="mb-2">
                       <img
                         src={product.chartImage}
@@ -908,7 +920,7 @@ export default function EditProductPage() {
                         className="h-32 w-auto object-contain border rounded"
                       />
                     </div>
-                  )}
+                  ) : null}
                   <Input
                     type="file"
                     accept="image/*"
