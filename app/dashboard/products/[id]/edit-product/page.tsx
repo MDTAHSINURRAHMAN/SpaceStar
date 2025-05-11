@@ -424,6 +424,14 @@ export default function EditProductPage() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
+                              {console.log(
+                                "categories",
+                                categories,
+                                "typeof",
+                                typeof categories,
+                                "isArray",
+                                Array.isArray(categories)
+                              )}
                               {isCategoriesLoading ? (
                                 <SelectItem value="" disabled>
                                   Loading...
@@ -576,6 +584,14 @@ export default function EditProductPage() {
                   {/* Features */}
                   <div className="space-y-4 mt-4">
                     <FormLabel>Features</FormLabel>
+                    {console.log(
+                      "features",
+                      features,
+                      "typeof",
+                      typeof features,
+                      "isArray",
+                      Array.isArray(features)
+                    )}
                     {features.map((feature, index) => (
                       <div key={index} className="flex gap-2">
                         <FormField
@@ -673,6 +689,14 @@ export default function EditProductPage() {
                   {/* Sizes */}
                   <div className="space-y-4">
                     <FormLabel>Sizes</FormLabel>
+                    {console.log(
+                      "sizes",
+                      sizes,
+                      "typeof",
+                      typeof sizes,
+                      "isArray",
+                      Array.isArray(sizes)
+                    )}
                     {sizes.map((size, index) => (
                       <div key={index} className="flex gap-2">
                         <FormField
@@ -718,6 +742,14 @@ export default function EditProductPage() {
                   {/* Colors */}
                   <div className="space-y-4 mt-6">
                     <FormLabel>Colors</FormLabel>
+                    {console.log(
+                      "colors",
+                      colors,
+                      "typeof",
+                      typeof colors,
+                      "isArray",
+                      Array.isArray(colors)
+                    )}
                     {colors.map((color, index) => (
                       <div key={index} className="flex gap-2">
                         <FormField
@@ -767,6 +799,14 @@ export default function EditProductPage() {
                   <div className="space-y-4">
                     <FormLabel>Product Images (up to 5)</FormLabel>
                     {/* Existing Images */}
+                    {console.log(
+                      "displayImages",
+                      displayImages,
+                      "typeof",
+                      typeof displayImages,
+                      "isArray",
+                      Array.isArray(displayImages)
+                    )}
                     {displayImages.length > 0 && (
                       <div className="grid grid-cols-5 gap-2 mb-4">
                         {displayImages.map((img, idx) => (
