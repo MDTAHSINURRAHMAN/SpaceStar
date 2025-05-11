@@ -29,19 +29,32 @@ import {
 import RequireAuth from "@/app/providers/RequireAuth";
 import Loader from "@/app/components/Loader";
 import { Header } from "@/app/components/header/Header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 export default function ProductsPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const { data: products = [], isLoading } = useGetAllProductsQuery({search,category});
+  const {
+    data: products = [],
+    isLoading,
+    refetch,
+  } = useGetAllProductsQuery({ search });
   const [deleteProduct] = useDeleteProductMutation();
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      localStorage.getItem("productUpdated") === "true"
+    ) {
+      refetch();
+      localStorage.removeItem("productUpdated");
+    }
+  }, []);
 
   const handleDelete = async (id: string) => {
     try {
       await deleteProduct(id).unwrap();
       toast.success("Product deleted successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete product");
     }
   };
@@ -78,7 +91,9 @@ export default function ProductsPage() {
                   variant="spaceStarOutline"
                   onClick={() => router.push("/dashboard/products/add-product")}
                   size="lg"
-                  className={`${buttonVariants({ variant: "spaceStarOutline" })} font-normal text-gray-700 hover:shadow-md border border-gray-500 rounded-full transition-all`}
+                  className={`${buttonVariants({
+                    variant: "spaceStarOutline",
+                  })} font-normal text-gray-700 hover:shadow-md border border-gray-500 rounded-full transition-all`}
                 >
                   <Plus className="h-4 w-4" /> Add Product
                 </Button>

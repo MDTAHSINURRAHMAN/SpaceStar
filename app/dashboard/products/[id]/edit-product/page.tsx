@@ -386,6 +386,9 @@ export default function EditProductPage() {
       }
       toast.success("Product updated successfully");
       refetch();
+      if (typeof window !== "undefined") {
+        localStorage.setItem("productUpdated", "true");
+      }
       router.push("/dashboard/products");
     } catch (error: any) {
       if (error?.status === 401 || error?.status === 403) {
