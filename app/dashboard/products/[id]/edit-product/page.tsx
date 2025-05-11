@@ -96,8 +96,8 @@ export default function EditProductPage() {
   } = useGetProductQuery(id as string);
 
   // Fetch categories dynamically
-  const { data: categories = [], isLoading: isCategoriesLoading } =
-    useGetAllCategoriesQuery();
+  const { data, isLoading: isCategoriesLoading } = useGetAllCategoriesQuery();
+  const categories = Array.isArray(data) ? data : [];
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
