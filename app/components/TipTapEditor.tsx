@@ -29,6 +29,7 @@ import {
   Redo,
   Type,
   Text,
+  Palette,
 } from "lucide-react";
 import { TipTapContent } from "@/types/story";
 import {
@@ -86,7 +87,9 @@ const TipTapEditor = ({
       }),
       TextStyle,
       FontFamily,
-      Color,
+      Color.configure({
+        types: ["textStyle"],
+      }),
       FontSize,
     ],
     content,
@@ -183,6 +186,22 @@ const TipTapEditor = ({
             >
               <Italic className="h-4 w-4" />
             </Button>
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hover:bg-gray-100 transition-colors"
+              >
+                <input
+                  type="color"
+                  onChange={(e) =>
+                    editor.chain().focus().setColor(e.target.value).run()
+                  }
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                />
+                <Palette className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Headings */}
