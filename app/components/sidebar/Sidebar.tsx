@@ -16,6 +16,7 @@ import {
   ChevronRight,
   ImageIcon,
   LogOut,
+  File,
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -73,7 +74,7 @@ const routes = [
       },
       {
         label: "Privacy",
-        icon: BookOpen,
+        icon: File,
         href: "/dashboard/cms/privacy",
         color: "text-white",
       },

@@ -490,8 +490,8 @@ export default function EditProductPage() {
                             </FormControl>
                             <SelectContent>
                               {isCategoriesLoading ? (
-                                <SelectItem value="" disabled>
-                                  Loading...
+                                <SelectItem value="loading" disabled>
+                                  <Loader />
                                 </SelectItem>
                               ) : (
                                 categories.map((category) => (
@@ -833,7 +833,7 @@ export default function EditProductPage() {
                     <FormLabel>Product Images (up to 5)</FormLabel>
                     {/* Existing Images */}
                     {displayImages.length > 0 && (
-                      <div className="grid grid-cols-5 gap-2 mb-4">
+                      <div className="flex flex-wrap justify-start gap-10 mb-4">
                         {displayImages.map((img, idx) => (
                           <div key={idx} className="relative">
                             <img
@@ -845,10 +845,10 @@ export default function EditProductPage() {
                               type="button"
                               variant="spaceStarOutline"
                               size="sm"
-                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 bg-red-500 text-white"
+                              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
                               onClick={() => removeExistingImage(idx)}
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-3 w-3" />
                             </Button>
                           </div>
                         ))}
