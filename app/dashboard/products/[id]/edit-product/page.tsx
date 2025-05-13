@@ -477,17 +477,15 @@ export default function EditProductPage() {
                           <FormLabel>Category</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            value={field.value}
+                            value={field.value || product?.category || ""}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue
-                                  placeholder={
-                                    isCategoriesLoading
-                                      ? "Loading..."
-                                      : "Select a category"
-                                  }
-                                />
+                                <SelectValue>
+                                  {field.value ||
+                                    product?.category ||
+                                    "Select a category"}
+                                </SelectValue>
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
