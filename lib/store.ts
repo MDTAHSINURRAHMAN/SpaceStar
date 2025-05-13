@@ -8,6 +8,7 @@ import { homeApi } from "./api/homeApi"; // ✅ Import homeApi
 import { aboutApi } from "./api/aboutApi"; // ✅ Import aboutApi
 import { storyApi } from "./api/storyApi"; // ✅ Import storyApi
 import { bannerApi } from "./api/bannerApi"; // ✅ Import bannerApi
+import { privacyApi } from "./api/privacyApi"; // ✅ Import privacyApi
 export const store = configureStore({
   reducer: {
     [productApi.reducerPath]: productApi.reducer,
@@ -18,6 +19,7 @@ export const store = configureStore({
     [aboutApi.reducerPath]: aboutApi.reducer, // ✅ Add reducer
     [storyApi.reducerPath]: storyApi.reducer, // ✅ Add reducer
     [bannerApi.reducerPath]: bannerApi.reducer, // ✅ Add reducer
+    [privacyApi.reducerPath]: privacyApi.reducer, // ✅ Add reducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -28,5 +30,6 @@ export const store = configureStore({
       .concat(homeApi.middleware)
       .concat(aboutApi.middleware)
       .concat(storyApi.middleware)
-      .concat(bannerApi.middleware)// ✅ Add middleware
+      .concat(bannerApi.middleware)
+      .concat(privacyApi.middleware), // ✅ Add middleware
 });

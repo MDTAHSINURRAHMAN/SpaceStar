@@ -71,6 +71,12 @@ const routes = [
         href: "/dashboard/cms/story",
         color: "text-white",
       },
+      {
+        label: "Privacy",
+        icon: BookOpen,
+        href: "/dashboard/cms/privacy",
+        color: "text-white",
+      },
     ],
   },
 ];

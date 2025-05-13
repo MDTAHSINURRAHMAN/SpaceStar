@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import {
-  useGetAllStoriesQuery,
-  useCreateStoryMutation,
-  useUpdateStoryMutation,
-  useDeleteStoryMutation,
-} from "@/lib/api/storyApi";
-import { StoryEntry, TipTapContent } from "@/types/story";
+  useGetAllPrivaciesQuery,
+  useCreatePrivacyMutation,
+  useUpdatePrivacyMutation,
+  useDeletePrivacyMutation,
+} from "@/lib/api/privacyApi";
+import { PrivacyEntry, TipTapContent } from "@/types/privacy";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import { Header } from "@/app/components/header/Header";
 import TipTapEditor from "@/app/components/TipTapEditor";
 import TipTapContentDisplay from "@/app/components/TipTapContent";
 
-interface StoryFormData {
+interface PrivacyFormData {
   image: File | null;
   content: TipTapContent;
 }
@@ -41,20 +41,20 @@ const EMPTY_TIPTAP_CONTENT: TipTapContent = {
   ],
 };
 
-const INITIAL_FORM_STATE: StoryFormData = {
+const INITIAL_FORM_STATE: PrivacyFormData = {
   image: null,
   content: EMPTY_TIPTAP_CONTENT,
 };
 
-export default function StoryPage() {
+export default function PrivacyPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<StoryFormData>(INITIAL_FORM_STATE);
+  const [formData, setFormData] = useState<PrivacyFormData>(INITIAL_FORM_STATE);
 
-  const { data: stories, isLoading, error } = useGetAllStoriesQuery();
-  const [createStory] = useCreateStoryMutation();
-  const [updateStory] = useUpdateStoryMutation();
-  const [deleteStory] = useDeleteStoryMutation();
+  const { data: privacies, isLoading, error } = useGetAllPrivaciesQuery();
+  const [createPrivacy] = useCreatePrivacyMutation();
+  const [updatePrivacy] = useUpdatePrivacyMutation();
+  const [deletePrivacy] = useDeletePrivacyMutation();
 
   const resetForm = () => {
     setFormData(INITIAL_FORM_STATE);
@@ -107,21 +107,21 @@ export default function StoryPage() {
       formDataToSend.append("image", formData.image!);
       formDataToSend.append("content", JSON.stringify(formData.content));
 
-      await createStory(formDataToSend);
+      await createPrivacy(formDataToSend);
       setIsCreating(false);
       resetForm();
-      toast.success("Story created successfully");
+      toast.success("Privacy created successfully");
     } catch (err) {
       console.error("Create error:", err);
-      toast.error("Failed to create story");
+      toast.error("Failed to create privacy");
     }
   };
 
-  const handleEdit = (story: StoryEntry) => {
-    setEditingId(story._id);
+  const handleEdit = (privacy: PrivacyEntry) => {
+    setEditingId(privacy._id);
     setFormData({
       image: null,
-      content: story.content,
+      content: privacy.content,
     });
   };
 
@@ -135,17 +135,17 @@ export default function StoryPage() {
       }
       formDataToSend.append("content", JSON.stringify(formData.content));
 
-      await updateStory({
+      await updatePrivacy({
         id,
         formData: formDataToSend,
         content: formData.content,
       });
       setEditingId(null);
       resetForm();
-      toast.success("Story updated successfully");
+      toast.success("Privacy updated successfully");
     } catch (err) {
       console.error("Update error:", err);
-      toast.error("Failed to update story");
+      toast.error("Failed to update privacy");
     }
   };
 
@@ -153,11 +153,11 @@ export default function StoryPage() {
     if (!confirm("Are you sure you want to delete this story?")) return;
 
     try {
-      await deleteStory(id);
-      toast.success("Story deleted successfully");
+      await deletePrivacy(id);
+      toast.success("Privacy deleted successfully");
     } catch (err) {
       console.error("Delete error:", err);
-      toast.error("Failed to delete story");
+      toast.error("Failed to delete privacy");
     }
   };
 
@@ -172,7 +172,7 @@ export default function StoryPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen text-red-500">
-        Error loading stories
+        Error loading privacies
       </div>
     );
   }
@@ -181,10 +181,10 @@ export default function StoryPage() {
     <RequireAuth>
       <div className="font-roboto">
         <div className="w-full">
-          <Header pageName="Story Page" />
+          <Header pageName="Privacy Page" />
         </div>
         <div className="w-2/3 mx-auto mt-8">
-          {!stories?.length && !isCreating && (
+          {!privacies?.length && !isCreating && (
             <Card className="mb-6 border-none shadow-none">
               <CardContent>
                 <Button
@@ -193,7 +193,7 @@ export default function StoryPage() {
                   className="w-1/3 font-normal text-gray-700 hover:shadow-md rounded-full transition-all border border-gray-700"
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Story
+                  Add Privacy
                 </Button>
               </CardContent>
             </Card>
@@ -203,11 +203,11 @@ export default function StoryPage() {
             <Card className="border-none shadow-none">
               <CardHeader>
                 <CardTitle className="text-lg font-medium">
-                  Create New Story
+                  Create New Privacy
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <StoryForm
+                <PrivacyForm
                   formData={formData}
                   onImageChange={handleImageChange}
                   onContentChange={handleContentChange}
@@ -218,15 +218,15 @@ export default function StoryPage() {
           )}
 
           <div className="grid grid-cols-1 gap-6">
-            {stories?.map((story) => (
-              <StoryCard
-                key={story._id}
-                story={story}
-                isEditing={editingId === story._id}
+            {privacies?.map((privacy) => (
+              <PrivacyCard
+                key={privacy._id}
+                privacy={privacy}
+                isEditing={editingId === privacy._id}
                 formData={formData}
-                onEdit={() => handleEdit(story)}
-                onUpdate={() => handleUpdate(story._id)}
-                onDelete={() => handleDelete(story._id)}
+                onEdit={() => handleEdit(privacy)}
+                onUpdate={() => handleUpdate(privacy._id)}
+                onDelete={() => handleDelete(privacy._id)}
                 onCancel={() => {
                   setEditingId(null);
                   resetForm();
@@ -242,19 +242,19 @@ export default function StoryPage() {
   );
 }
 
-interface StoryFormProps {
-  formData: StoryFormData;
+interface PrivacyFormProps {
+  formData: PrivacyFormData;
   onImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onContentChange: (content: TipTapContent) => void;
   onSubmit: () => void;
 }
 
-function StoryForm({
+function PrivacyForm({
   formData,
   onImageChange,
   onContentChange,
   onSubmit,
-}: StoryFormProps) {
+}: PrivacyFormProps) {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -269,7 +269,7 @@ function StoryForm({
             variant="spaceStarOutline"
             className="w-1/3 flex-1 font-medium text-gray-700 hover:bg-gray-50 rounded-full transition-all hover:shadow-md border-2 border-gray-500 hover:border-gray-500 py-2 mr-3"
           >
-            Create Story
+            Create Privacy
           </Button>
         </div>
       </div>
@@ -277,10 +277,10 @@ function StoryForm({
   );
 }
 
-interface StoryCardProps {
-  story: StoryEntry;
+interface PrivacyCardProps {
+  privacy: PrivacyEntry;
   isEditing: boolean;
-  formData: StoryFormData;
+  formData: PrivacyFormData;
   onEdit: () => void;
   onUpdate: () => void;
   onDelete: () => void;
@@ -289,8 +289,8 @@ interface StoryCardProps {
   onContentChange: (content: TipTapContent) => void;
 }
 
-function StoryCard({
-  story,
+function PrivacyCard({
+  privacy,
   isEditing,
   formData,
   onEdit,
@@ -299,13 +299,13 @@ function StoryCard({
   onCancel,
   onImageChange,
   onContentChange,
-}: StoryCardProps) {
+}: PrivacyCardProps) {
   return (
     <div className="flex flex-col gap-4 p-6 rounded-lg shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
       <div className="relative h-48 w-full overflow-hidden rounded-md">
         <Image
-          src={story.image}
-          alt="Story image"
+          src={privacy.image}
+          alt="Privacy image"
           fill
           className="object-cover"
         />
@@ -345,7 +345,7 @@ function StoryCard({
       ) : (
         <div className="space-y-4">
           <div className="p-4 bg-gray-50 rounded-md">
-            <TipTapContentDisplay content={story.content} />
+            <TipTapContentDisplay content={privacy.content} />
           </div>
           <div className="gap-3 pt-2">
             <Button
